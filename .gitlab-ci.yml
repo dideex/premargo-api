@@ -22,14 +22,15 @@ extract-version:
   image: python:3.9-slim
   script:
     - pip install pyyaml
-    - python -c "
-import yaml
-with open('$SPEC_FILE', 'r') as f:
-    spec = yaml.safe_load(f)
-    version = spec['info']['version']
-    with open('version', 'w') as vf:
-        vf.write(version)
-"
+    - |
+      python -c "
+      import yaml
+      with open('$SPEC_FILE', 'r') as f:
+          spec = yaml.safe_load(f)
+          version = spec['info']['version']
+          with open('version', 'w') as vf:
+              vf.write(version)
+      "
   artifacts:
     paths:
       - version
