@@ -1,4 +1,4 @@
-image: openapitools/openapi-generator-cli:latest
+image: nexus.dev.zorg.sh:5000/npmjs
 
 stages:
   - validate
@@ -12,24 +12,27 @@ variables:
   GIT_USER_EMAIL: "gitlab-ci@exante.eu"
   GIT_USER_NAME: "GitLab CI"
 
+.validate-template: &validate-template
+  before_script:
+    - npm install @openapitools/openapi-generator-cli@${OPENAPI_GENERATOR_VERSION} -g
+
 validate-spec:
   stage: validate
+  <<: *validate-template
   script:
     - openapi-generator-cli validate -i $SPEC_FILE
 
 extract-version:
   stage: extract-version
-  image: python:3.9-slim
+  before_script:
+    - npm install js-yaml
   script:
-    - pip install pyyaml
     - |
-      python -c "
-      import yaml
-      with open('$SPEC_FILE', 'r') as f:
-          spec = yaml.safe_load(f)
-          version = spec['info']['version']
-          with open('version', 'w') as vf:
-              vf.write(version)
+      node -e "
+      const yaml = require('js-yaml');
+      const fs = require('fs');
+      const spec = yaml.load(fs.readFileSync('$SPEC_FILE', 'utf8'));
+      fs.writeFileSync('version', spec.info.version);
       "
   artifacts:
     paths:
@@ -39,6 +42,7 @@ extract-version:
 
 generate-erlang:
   stage: generate
+  <<: *validate-template
   variables:
     GENERATOR_NAME: erlang-server
     OUTPUT_DIR: ./generated-erlang
@@ -60,6 +64,7 @@ generate-erlang:
 
 generate-python:
   stage: generate
+  <<: *validate-template
   variables:
     GENERATOR_NAME: python
     OUTPUT_DIR: ./generated-python
