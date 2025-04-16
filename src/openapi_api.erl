@@ -1,4 +1,4 @@
--module({{packageName}}_api).
+-module(openapi_api).
 -moduledoc """
 This module offers an API for JSON schema validation, using `jesse` under the hood.
 
@@ -16,12 +16,19 @@ and `validate_response/4` respectively.
 -ignore_xref([format_error_description/4]).
 
 -type class() ::
-{{#apiInfo}}{{#apis}}{{#operations}}    {{^-first}}| {{/-first}}'{{pathPrefix}}'{{#-last}}.{{/-last}}
-{{/operations}}{{/apis}}{{/apiInfo}}
+    'pet'.
+
 
 -type operation_id() ::
-{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}    '{{operationIdOriginal}}' | %% {{summary}}
-{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}    {error, unknown_operation}.
+    'addPet' | %% Add a new pet to the store
+    'deletePet' | %% Deletes a pet
+    'findPetsByStatus' | %% Finds Pets by status
+    'findPetsByTags' | %% Finds Pets by tags
+    'getPetById' | %% Find pet by ID
+    'updatePet' | %% Update an existing pet
+    'updatePetWithForm' | %% Updates a pet in the store with form data
+    'uploadFile' | %% uploads an image
+    {error, unknown_operation}.
 
 -type request_param() :: atom().
 
@@ -92,53 +99,189 @@ for the `OperationID` operation.
         Body :: jesse:json_term(),
         ValidatorState :: jesse_state:state()) ->
     ok | {ok, term()} | [ok | {ok, term()}] | no_return().
-{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}{{#responses}}validate_response('{{operationIdOriginal}}', {{code}}, Body, ValidatorState) ->
-    validate_response_body('{{dataType}}', '{{baseType}}', Body, ValidatorState);
-{{/responses}}
-{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}validate_response(_OperationID, _Code, _Body, _ValidatorState) ->
+validate_response('addPet', 200, Body, ValidatorState) ->
+    validate_response_body('Pet', 'Pet', Body, ValidatorState);
+validate_response('addPet', 405, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
+validate_response('deletePet', 400, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
+validate_response('findPetsByStatus', 200, Body, ValidatorState) ->
+    validate_response_body('list', 'Pet', Body, ValidatorState);
+validate_response('findPetsByStatus', 400, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
+validate_response('findPetsByTags', 200, Body, ValidatorState) ->
+    validate_response_body('list', 'Pet', Body, ValidatorState);
+validate_response('findPetsByTags', 400, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
+validate_response('getPetById', 200, Body, ValidatorState) ->
+    validate_response_body('Pet', 'Pet', Body, ValidatorState);
+validate_response('getPetById', 400, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
+validate_response('getPetById', 404, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
+validate_response('updatePet', 200, Body, ValidatorState) ->
+    validate_response_body('Pet', 'Pet', Body, ValidatorState);
+validate_response('updatePet', 400, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
+validate_response('updatePet', 404, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
+validate_response('updatePet', 405, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
+validate_response('updatePetWithForm', 405, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
+validate_response('uploadFile', 200, Body, ValidatorState) ->
+    validate_response_body('ApiResponse', 'ApiResponse', Body, ValidatorState);
+validate_response(_OperationID, _Code, _Body, _ValidatorState) ->
     ok.
 
 %%%
 -spec request_params(OperationID :: operation_id()) -> [Param :: request_param()].
-{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}request_params('{{operationIdOriginal}}') ->
-    [{{#allParams}}{{^isBodyParam}}
-        '{{baseName}}'{{/isBodyParam}}{{#isBodyParam}}
-        {{#content.application/json.schema.openApiType}}'{{content.application/json.schema.openApiType}}'{{/content.application/json.schema.openApiType}}{{^content.application/json.schema.openApiType}}'{{dataType}}'{{/content.application/json.schema.openApiType}}{{/isBodyParam}}{{^-last}},{{/-last}}{{/allParams}}
+request_params('addPet') ->
+    [
+        'Pet'
     ];
-{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}request_params(_) ->
+request_params('deletePet') ->
+    [
+        'petId',
+        'api_key'
+    ];
+request_params('findPetsByStatus') ->
+    [
+        'status'
+    ];
+request_params('findPetsByTags') ->
+    [
+        'tags'
+    ];
+request_params('getPetById') ->
+    [
+        'petId'
+    ];
+request_params('updatePet') ->
+    [
+        'Pet'
+    ];
+request_params('updatePetWithForm') ->
+    [
+        'petId',
+        'name',
+        'status'
+    ];
+request_params('uploadFile') ->
+    [
+        'petId',
+        'additionalMetadata',
+        'file'
+    ];
+request_params(_) ->
     error(unknown_operation).
 
 -spec request_param_info(OperationID :: operation_id(), Name :: request_param()) ->
     #{source => qs_val | binding | header | body, rules => [rule()]}.
-{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}{{#allParams}}request_param_info('{{operationIdOriginal}}', {{^isBodyParam}}'{{baseName}}'{{/isBodyParam}}{{#isBodyParam}}{{#content.application/json.schema.openApiType}}'{{content.application/json.schema.openApiType}}'{{/content.application/json.schema.openApiType}}{{^content.application/json.schema.openApiType}}'{{dataType}}'{{/content.application/json.schema.openApiType}}{{/isBodyParam}}) ->
+request_param_info('addPet', 'Pet') ->
     #{
-        source => {{#isQueryParam}}qs_val{{/isQueryParam}}{{#isPathParam}}binding{{/isPathParam}}{{#isHeaderParam}}header{{/isHeaderParam}}{{#isBodyParam}}body{{/isBodyParam}}{{#isFormParam}}body{{/isFormParam}},
-        rules => [{{#isString}}
-            {type, binary},{{/isString}}{{#isInteger}}
-            {type, integer},{{/isInteger}}{{#isLong}}
-            {type, integer},{{/isLong}}{{#isFloat}}
-            {type, float},{{/isFloat}}{{#isDouble}}
-            {type, float},{{/isDouble}}{{#isByteArray}}
-            {type, byte},{{/isByteArray}}{{#isBinary}}
-            {type, binary},{{/isBinary}}{{#isBoolean}}
-            {type, boolean},{{/isBoolean}}{{#isDate}}
-            {type, date},{{/isDate}}{{#isDateTime}}
-            {type, datetime},{{/isDateTime}}{{#isEnum}}
-            {enum, [{{#allowableValues}}{{#values}}'{{.}}'{{^-last}}, {{/-last}}{{/values}}{{/allowableValues}}] },{{/isEnum}}{{#maximum}}
-            {max, {{maximum}}},{{#exclusiveMaximum}}
-            {exclusive_max, {{maximum}}},{{/exclusiveMaximum}}{{/maximum}}{{#minimum}}
-            {min, {{minimum}}},{{#exclusiveMinimum}}
-            {exclusive_min, {{minimum}}},{{/exclusiveMinimum}}{{/minimum}}{{#maxLength}}
-            {max_length, {{maxLength}}},{{/maxLength}}{{#minLength}}
-            {min_length, {{minLength}}},{{/minLength}}{{#pattern}}
-            {pattern, "{{{pattern}}}"},{{/pattern}}{{#isBodyParam}}{{#content.application/json.schema.ref}}
-            {schema, object, <<"{{content.application/json.schema.ref}}">>},{{/content.application/json.schema.ref}}{{#content.application/json.schema.items.ref}}
-            {schema, list, <<"{{content.application/json.schema.items.ref}}">>},{{/content.application/json.schema.items.ref}}{{/isBodyParam}}{{#required}}
-            required{{/required}}{{^required}}
-            not_required{{/required}}
+        source => body,
+        rules => [
+            {schema, object, <<"#/components/schemas/Pet">>},
+            required
         ]
     };
-{{/allParams}}{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}request_param_info(OperationID, Name) ->
+request_param_info('deletePet', 'petId') ->
+    #{
+        source => binding,
+        rules => [
+            {type, integer},
+            required
+        ]
+    };
+request_param_info('deletePet', 'api_key') ->
+    #{
+        source => header,
+        rules => [
+            {type, binary},
+            not_required
+        ]
+    };
+request_param_info('findPetsByStatus', 'status') ->
+    #{
+        source => qs_val,
+        rules => [
+            {enum, ['available', 'pending', 'sold'] },
+            required
+        ]
+    };
+request_param_info('findPetsByTags', 'tags') ->
+    #{
+        source => qs_val,
+        rules => [
+            required
+        ]
+    };
+request_param_info('getPetById', 'petId') ->
+    #{
+        source => binding,
+        rules => [
+            {type, integer},
+            required
+        ]
+    };
+request_param_info('updatePet', 'Pet') ->
+    #{
+        source => body,
+        rules => [
+            {schema, object, <<"#/components/schemas/Pet">>},
+            required
+        ]
+    };
+request_param_info('updatePetWithForm', 'petId') ->
+    #{
+        source => binding,
+        rules => [
+            {type, integer},
+            required
+        ]
+    };
+request_param_info('updatePetWithForm', 'name') ->
+    #{
+        source => body,
+        rules => [
+            {type, binary},
+            not_required
+        ]
+    };
+request_param_info('updatePetWithForm', 'status') ->
+    #{
+        source => body,
+        rules => [
+            {type, binary},
+            not_required
+        ]
+    };
+request_param_info('uploadFile', 'petId') ->
+    #{
+        source => binding,
+        rules => [
+            {type, integer},
+            required
+        ]
+    };
+request_param_info('uploadFile', 'additionalMetadata') ->
+    #{
+        source => body,
+        rules => [
+            {type, binary},
+            not_required
+        ]
+    };
+request_param_info('uploadFile', 'file') ->
+    #{
+        source => body,
+        rules => [
+            {type, binary},
+            not_required
+        ]
+    };
+request_param_info(OperationID, Name) ->
     error({unknown_param, OperationID, Name}).
 
 -spec populate_request_params(
@@ -395,7 +538,7 @@ get_opt(Key, Opts, Default) ->
 
 get_openapi_path() ->
     {ok, AppName} = application:get_application(?MODULE),
-    filename:join(priv_dir(AppName), "{{{openAPISpecName}}}.json").
+    filename:join(priv_dir(AppName), "openapi.json").
 
 -include_lib("kernel/include/file.hrl").
 

@@ -1,4 +1,4 @@
--module({{packageName}}_logic_handler).
+-module(openapi_logic_handler).
 
 -include_lib("kernel/include/logger.hrl").
 
@@ -14,13 +14,13 @@
         stop
         | response().
 -type accept_callback() ::
-    fun(({{packageName}}_api:class(), {{packageName}}_api:operation_id(), cowboy_req:req(), context()) ->
+    fun((openapi_api:class(), openapi_api:operation_id(), cowboy_req:req(), context()) ->
             {code(), accept_callback_return(), cowboy_req:req(), context()}).
 -type provide_callback() ::
-    fun(({{packageName}}_api:class(), {{packageName}}_api:operation_id(), cowboy_req:req(), context()) ->
+    fun((openapi_api:class(), openapi_api:operation_id(), cowboy_req:req(), context()) ->
             {code(), cowboy_req:resp_body(), cowboy_req:req(), context()}).
 -type forbidden_callback() ::
-    fun(({{packageName}}_api:class(), {{packageName}}_api:operation_id(), cowboy_req:req(), context()) ->
+    fun((openapi_api:class(), openapi_api:operation_id(), cowboy_req:req(), context()) ->
             {boolean(), cowboy_req:req(), context()}).
 -type context() :: map().
 
@@ -30,24 +30,24 @@
 
 -optional_callbacks([forbidden_callback/4]).
 
--callback accept_callback({{packageName}}_api:class(), {{packageName}}_api:operation_id(), cowboy_req:req(), context()) ->
+-callback accept_callback(openapi_api:class(), openapi_api:operation_id(), cowboy_req:req(), context()) ->
     {code(), accept_callback_return(), cowboy_req:req(), context()}.
 
--callback provide_callback({{packageName}}_api:class(), {{packageName}}_api:operation_id(), cowboy_req:req(), context()) ->
+-callback provide_callback(openapi_api:class(), openapi_api:operation_id(), cowboy_req:req(), context()) ->
     {code(), provide_callback_return(), cowboy_req:req(), context()}.
 
--callback forbidden_callback({{packageName}}_api:class(), {{packageName}}_api:operation_id(), cowboy_req:req(), context()) ->
+-callback forbidden_callback(openapi_api:class(), openapi_api:operation_id(), cowboy_req:req(), context()) ->
     {boolean(), cowboy_req:req(), context()}.
 
 -export([accept_callback/4, provide_callback/4, forbidden_callback/4]).
 -ignore_xref([accept_callback/4, provide_callback/4, forbidden_callback/4]).
 
--spec forbidden_callback({{packageName}}_api:class(), {{packageName}}_api:operation_id(), cowboy_req:req(), context()) ->
+-spec forbidden_callback(openapi_api:class(), openapi_api:operation_id(), cowboy_req:req(), context()) ->
     {boolean(), cowboy_req:req(), context()}.
 forbidden_callback(_Class, _OperationID, Req, Context) ->
     {false, Req, Context}.
 
--spec accept_callback({{packageName}}_api:class(), {{packageName}}_api:operation_id(), cowboy_req:req(), context()) ->
+-spec accept_callback(openapi_api:class(), openapi_api:operation_id(), cowboy_req:req(), context()) ->
     {code(), accept_callback_return(), cowboy_req:req(), context()}.
 accept_callback(Class, OperationID, Req, Context) ->
     ?LOG_ERROR(#{what => "Got not implemented request to process",
@@ -57,7 +57,7 @@ accept_callback(Class, OperationID, Req, Context) ->
                  context => Context}),
     {false, Req, Context}.
 
--spec provide_callback({{packageName}}_api:class(), {{packageName}}_api:operation_id(), cowboy_req:req(), context()) ->
+-spec provide_callback(openapi_api:class(), openapi_api:operation_id(), cowboy_req:req(), context()) ->
     {code(), response(), cowboy_req:req(), context()}.
 provide_callback(Class, OperationID, Req, Context) ->
     ?LOG_ERROR(#{what => "Got not implemented request to process",

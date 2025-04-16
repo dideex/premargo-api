@@ -1,0 +1,11 @@
+{application,
+ openapi,
+ [{description,
+   "There is a new description."},
+  {vsn, "1.0.0"},
+  {registered, []},
+  {applications, [kernel, stdlib, public_key, ssl, inets, ranch, cowboy, jesse]},
+  {env, []},
+  {modules, []},
+  {licenses, ["Apache-2.0"]},
+  {links, []}]}.
