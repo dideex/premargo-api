@@ -54,7 +54,8 @@ jobs:
       - name: Setup OpenAPI Generator
         run: |
           mkdir -p /usr/local/lib/node_modules/@openapitools
-          cp -r openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
+          cp -rv openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
+          ln -sf /usr/local/lib/node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator-cli /usr/local/bin/openapi-generator-cli
       - name: Validate OpenAPI Spec
         run: openapi-generator-cli validate -i ${{ env.SPEC_FILE }}
 
@@ -95,7 +96,8 @@ jobs:
       - name: Setup OpenAPI Generator
         run: |
           mkdir -p /usr/local/lib/node_modules/@openapitools
-          cp -r openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
+          cp -rv openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
+          ln -sf /usr/local/lib/node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator-cli /usr/local/bin/openapi-generator-cli
       - name: Generate Erlang Server
         run: |
           openapi-generator-cli generate \
@@ -128,7 +130,8 @@ jobs:
       - name: Setup OpenAPI Generator
         run: |
           mkdir -p /usr/local/lib/node_modules/@openapitools
-          cp -r openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
+          cp -rv openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
+          ln -sf /usr/local/lib/node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator-cli /usr/local/bin/openapi-generator-cli
       - name: Generate Python Client
         run: |
           openapi-generator-cli generate \
