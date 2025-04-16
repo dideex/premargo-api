@@ -86,3 +86,30 @@ jobs:
         with:
           name: generated-python
           path: generated-python
+
+  push-erlang:
+    needs: [generate-erlang, extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Download Erlang artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: generated-erlang
+          path: generated-erlang
+      - name: Configure Git
+        run: |
+          git config --global user.email "${{ env.GIT_USER_EMAIL }}"
+          git config --global user.name "${{ env.GIT_USER_NAME }}"
+      - name: Push Erlang Server
+        run: |
+          git checkout erlang_server_test || git checkout -b erlang_server_test
+          rm -rf ./*
+          cp -r generated-erlang/* .
+          git add .
+          git commit -m "Update generated Erlang server code from OpenAPI spec erl-${{ needs.extract-version.outputs.version }} [skip ci]"
+          git tag -a "erl-${{ needs.extract-version.outputs.version }}"
+          git push origin erlang_server_test
+          git push origin "erl-${{ needs.extract-version.outputs.version }}"
