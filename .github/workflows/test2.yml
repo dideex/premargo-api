@@ -64,3 +64,25 @@ jobs:
         with:
           name: generated-erlang
           path: generated-erlang
+
+  generate-python:
+    needs: [validate, extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install OpenAPI Generator
+        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+      - name: Generate Python Client
+        run: |
+          openapi-generator-cli generate \
+            -i ${{ env.SPEC_FILE }} \
+            -g python \
+            -o ./generated-python
+      - name: Upload Python artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-python
+          path: generated-python
