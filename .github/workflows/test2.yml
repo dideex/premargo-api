@@ -116,15 +116,18 @@ jobs:
       - name: Push Erlang Server
         run: |
           git checkout erlang_server_test || git checkout -b erlang_server_test
-          echo "Contents before rm:"
+          echo "Contents before operations:"
           ls -la
-          rm -rf ./*
-          echo "Contents after rm:"
-          ls -la
-          echo "Contents of generated-erlang:"
-          ls -la generated-erlang || echo "Directory is empty or doesn't exist"
-          cp -rv generated-erlang/* .
-          echo "Contents after copy:"
+          # Create a temporary directory to store the files we want to keep
+          mkdir -p temp_backup
+          # Copy the generated files to temp directory
+          cp -rv generated-erlang/* temp_backup/
+          # Remove everything except .git and temp_backup
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'temp_backup' -exec rm -rf {} +
+          # Move files from temp_backup to current directory
+          mv temp_backup/* .
+          rm -rf temp_backup
+          echo "Contents after operations:"
           ls -la
           git add .
           git commit -m "Update generated Erlang server code from OpenAPI spec erl-${{ needs.extract-version.outputs.version }} [skip ci]"
