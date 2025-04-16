@@ -7,7 +7,7 @@
       "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
     "title" : "OpenAPI Template",
-    "version" : "1.0.0"
+    "version" : "1.0.1"
   },
   "externalDocs" : {
     "description" : "Find out more about Swagger",
@@ -46,6 +46,9 @@
               }
             },
             "description" : "successful operation"
+          },
+          "404" : {
+            "description" : "Pet not found"
           },
           "405" : {
             "description" : "Invalid input"

@@ -101,6 +101,8 @@ for the `OperationID` operation.
     ok | {ok, term()} | [ok | {ok, term()}] | no_return().
 validate_response('addPet', 200, Body, ValidatorState) ->
     validate_response_body('Pet', 'Pet', Body, ValidatorState);
+validate_response('addPet', 404, Body, ValidatorState) ->
+    validate_response_body('', '', Body, ValidatorState);
 validate_response('addPet', 405, Body, ValidatorState) ->
     validate_response_body('', '', Body, ValidatorState);
 validate_response('deletePet', 400, Body, ValidatorState) ->
