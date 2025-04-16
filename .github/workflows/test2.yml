@@ -59,6 +59,8 @@ jobs:
             -o ./generated-erlang \
             -t ./template/erlang-api \
             --openapi-generator-ignore-list "src/openapi_auth.erl"
+      - name: List generated files
+        run: ls -la ./generated-erlang || echo "No files generated"
       - name: Upload Erlang artifacts
         uses: actions/upload-artifact@v4
         with:
