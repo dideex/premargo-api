@@ -40,3 +40,27 @@ jobs:
           console.log(spec.info.version);
           ")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  generate-erlang:
+    needs: [validate, extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install OpenAPI Generator
+        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+      - name: Generate Erlang Server
+        run: |
+          openapi-generator-cli generate \
+            -i ${{ env.SPEC_FILE }} \
+            -g erlang-server \
+            -o ./generated-erlang \
+            -t ./template/erlang-api \
+            --openapi-generator-ignore-list "src/openapi_auth.erl"
+      - name: Upload Erlang artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: generated-erlang
+          path: generated-erlang
