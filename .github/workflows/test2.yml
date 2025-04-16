@@ -17,12 +17,16 @@ jobs:
         with:
           node-version: '18'
       - name: Install OpenAPI Generator
-        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+        run: |
+          npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+          mkdir -p openapi-generator
+          cp -r /usr/local/lib/node_modules/@openapitools/openapi-generator-cli/* openapi-generator/
       - name: Upload OpenAPI Generator
         uses: actions/upload-artifact@v4
         with:
           name: openapi-generator
-          path: /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
+          path: openapi-generator
+          retention-days: 1
 
   validate:
     needs: [setup]
@@ -36,7 +40,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: openapi-generator
-          path: /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
+          path: openapi-generator
+      - name: Setup OpenAPI Generator
+        run: |
+          mkdir -p /usr/local/lib/node_modules/@openapitools
+          cp -r openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
       - name: Validate OpenAPI Spec
         run: openapi-generator-cli validate -i ${{ env.SPEC_FILE }}
 
@@ -73,7 +81,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: openapi-generator
-          path: /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
+          path: openapi-generator
+      - name: Setup OpenAPI Generator
+        run: |
+          mkdir -p /usr/local/lib/node_modules/@openapitools
+          cp -r openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
       - name: Generate Erlang Server
         run: |
           openapi-generator-cli generate \
@@ -102,7 +114,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: openapi-generator
-          path: /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
+          path: openapi-generator
+      - name: Setup OpenAPI Generator
+        run: |
+          mkdir -p /usr/local/lib/node_modules/@openapitools
+          cp -r openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
       - name: Generate Python Client
         run: |
           openapi-generator-cli generate \
