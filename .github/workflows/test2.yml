@@ -1,12 +1,7 @@
 name: OpenAPI Generator
-
-on:
-  push:
-    branches:
-      - main
-
+on: [push]
 env:
-  OPENAPI_GENERATOR_VERSION: 6.6.0
+  OPENAPI_GENERATOR_VERSION: 2.7.0
   SPEC_FILE: pets.yaml
   GIT_USER_EMAIL: "github-actions@exante.eu"
   GIT_USER_NAME: "GitHub Actions"
@@ -64,8 +59,10 @@ jobs:
             -o ./generated-erlang \
             -t ./template/erlang-api \
             --openapi-generator-ignore-list "src/openapi_auth.erl"
+      - name: List generated files
+        run: ls -la ./generated-erlang || echo "No files generated"
       - name: Upload Erlang artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: generated-erlang
           path: generated-erlang
@@ -87,7 +84,7 @@ jobs:
             -g python \
             -o ./generated-python
       - name: Upload Python artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: generated-python
           path: generated-python
@@ -99,8 +96,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ secrets.GIT_TOKEN }}
       - name: Download Erlang artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: generated-erlang
           path: generated-erlang
@@ -109,15 +107,28 @@ jobs:
           git config --global user.email "${{ env.GIT_USER_EMAIL }}"
           git config --global user.name "${{ env.GIT_USER_NAME }}"
       - name: Push Erlang Server
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
           git checkout erlang_server_test || git checkout -b erlang_server_test
-          rm -rf ./*
-          cp -r generated-erlang/* .
+          echo "Contents before operations:"
+          ls -la
+          # Create a temporary directory to store the files we want to keep
+          mkdir -p temp_backup
+          # Copy the generated files to temp directory
+          cp -rv generated-erlang/* temp_backup/
+          # Remove everything except .git and temp_backup
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'temp_backup' -exec rm -rf {} +
+          # Move files from temp_backup to current directory
+          mv temp_backup/* .
+          rm -rf temp_backup
+          echo "Contents after operations:"
+          ls -la
           git add .
-          git commit -m "Update generated Erlang server code from OpenAPI spec erl-${{ needs.extract-version.outputs.version }} [skip ci]"
-          git tag -a "erl-${{ needs.extract-version.outputs.version }}"
-          git push origin erlang_server_test
-          git push origin "erl-${{ needs.extract-version.outputs.version }}"
+          git commit -m "Update generated Erlang server code from OpenAPI spec erl-${{ needs.extract-version.outputs.version }} [skip ci]" || echo "No changes to commit"
+          git tag -a "erl-${{ needs.extract-version.outputs.version }}" -m "Release erl-${{ needs.extract-version.outputs.version }}" || echo "Tag already exists"
+          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" erlang_server_test || echo "Branch is up to date"
+          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "erl-${{ needs.extract-version.outputs.version }}" || echo "Tag already pushed"
 
   push-python:
     needs: [generate-python, extract-version]
@@ -126,8 +137,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ secrets.GIT_TOKEN }}
       - name: Download Python artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: generated-python
           path: generated-python
@@ -136,12 +148,25 @@ jobs:
           git config --global user.email "${{ env.GIT_USER_EMAIL }}"
           git config --global user.name "${{ env.GIT_USER_NAME }}"
       - name: Push Python Client
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
           git checkout python_client_test || git checkout -b python_client_test
-          rm -rf ./*
-          cp -r generated-python/* .
+          echo "Contents before operations:"
+          ls -la
+          # Create a temporary directory to store the files we want to keep
+          mkdir -p temp_backup
+          # Copy the generated files to temp directory
+          cp -rv generated-python/* temp_backup/
+          # Remove everything except .git and temp_backup
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'temp_backup' -exec rm -rf {} +
+          # Move files from temp_backup to current directory
+          mv temp_backup/* .
+          rm -rf temp_backup
+          echo "Contents after operations:"
+          ls -la
           git add .
-          git commit -m "Update generated Python client code from OpenAPI spec py-${{ needs.extract-version.outputs.version }} [skip ci]"
-          git tag -a "py-${{ needs.extract-version.outputs.version }}"
-          git push origin python_client_test
-          git push origin "py-${{ needs.extract-version.outputs.version }}" 
+          git commit -m "Update generated Python client code from OpenAPI spec py-${{ needs.extract-version.outputs.version }} [skip ci]" || echo "No changes to commit"
+          git tag -a "py-${{ needs.extract-version.outputs.version }}" -m "Release py-${{ needs.extract-version.outputs.version }}" || echo "Tag already exists"
+          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" python_client_test || echo "Branch is up to date"
+          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "py-${{ needs.extract-version.outputs.version }}" || echo "Tag already pushed" 

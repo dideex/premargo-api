@@ -4,7 +4,7 @@ servers:
 info:
   description: >-
     There is a new description.
-  version: 1.0.0
+  version: 1.0.1
   title: OpenAPI Template
   license:
     name: Apache-2.0
@@ -30,6 +30,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pet'
+        '404':
+          description: Pet not found
         '405':
           description: Invalid input
       security:
