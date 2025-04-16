@@ -131,6 +131,6 @@ jobs:
           ls -la
           git add .
           git commit -m "Update generated Erlang server code from OpenAPI spec erl-${{ needs.extract-version.outputs.version }} [skip ci]"
-          git tag -a "erl-${{ needs.extract-version.outputs.version }}"
+          git tag -a "erl-${{ needs.extract-version.outputs.version }}" -m "Release erl-${{ needs.extract-version.outputs.version }}"
           git push origin erlang_server_test
           git push origin "erl-${{ needs.extract-version.outputs.version }}"
