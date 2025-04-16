@@ -39,7 +39,6 @@ jobs:
           const yaml = require('js-yaml');
           const fs = require('fs');
           const spec = yaml.load(fs.readFileSync('${{ env.SPEC_FILE }}', 'utf8'));
-          console.log(spec.info.version);
           ")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
@@ -113,8 +112,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
           git checkout ${{ env.ERLANG_BRANCH }} || git checkout -b ${{ env.ERLANG_BRANCH }}
-          echo "Contents before operations:"
-          ls -la
           # Create a temporary directory to store the files we want to keep
           mkdir -p temp_backup
           # Copy the generated files to temp directory
@@ -124,8 +121,6 @@ jobs:
           # Move files from temp_backup to current directory
           mv temp_backup/* .
           rm -rf temp_backup
-          echo "Contents after operations:"
-          ls -la
           git add .
           git commit -m "Update generated Erlang server code from OpenAPI spec erl-${{ needs.extract-version.outputs.version }} [skip ci]" || echo "No changes to commit"
           git tag -a "erl-${{ needs.extract-version.outputs.version }}" -m "Release erl-${{ needs.extract-version.outputs.version }}" || echo "Tag already exists"
@@ -154,8 +149,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
           git checkout ${{ env.PYTHON_BRANCH }} || git checkout -b ${{ env.PYTHON_BRANCH }}
-          echo "Contents before operations:"
-          ls -la
           # Create a temporary directory to store the files we want to keep
           mkdir -p temp_backup
           # Copy the generated files to temp directory
@@ -165,8 +158,6 @@ jobs:
           # Move files from temp_backup to current directory
           mv temp_backup/* .
           rm -rf temp_backup
-          echo "Contents after operations:"
-          ls -la
           git add .
           git commit -m "Update generated Python client code from OpenAPI spec py-${{ needs.extract-version.outputs.version }} [skip ci]" || echo "No changes to commit"
           git tag -a "py-${{ needs.extract-version.outputs.version }}" -m "Release py-${{ needs.extract-version.outputs.version }}" || echo "Tag already exists"
