@@ -1,0 +1,147 @@
+name: OpenAPI Generator
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  OPENAPI_GENERATOR_VERSION: 6.6.0
+  SPEC_FILE: pets.yaml
+  GIT_USER_EMAIL: "github-actions@exante.eu"
+  GIT_USER_NAME: "GitHub Actions"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install OpenAPI Generator
+        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+      - name: Validate OpenAPI Spec
+        run: openapi-generator-cli validate -i ${{ env.SPEC_FILE }}
+
+  extract-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install js-yaml
+      - name: Extract version
+        id: extract
+        run: |
+          VERSION=$(node -e "
+          const yaml = require('js-yaml');
+          const fs = require('fs');
+          const spec = yaml.load(fs.readFileSync('${{ env.SPEC_FILE }}', 'utf8'));
+          console.log(spec.info.version);
+          ")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  generate-erlang:
+    needs: [validate, extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install OpenAPI Generator
+        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+      - name: Generate Erlang Server
+        run: |
+          openapi-generator-cli generate \
+            -i ${{ env.SPEC_FILE }} \
+            -g erlang-server \
+            -o ./generated-erlang \
+            -t ./template/erlang-api \
+            --openapi-generator-ignore-list "src/openapi_auth.erl"
+      - name: Upload Erlang artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: generated-erlang
+          path: generated-erlang
+
+  generate-python:
+    needs: [validate, extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install OpenAPI Generator
+        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+      - name: Generate Python Client
+        run: |
+          openapi-generator-cli generate \
+            -i ${{ env.SPEC_FILE }} \
+            -g python \
+            -o ./generated-python
+      - name: Upload Python artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: generated-python
+          path: generated-python
+
+  push-erlang:
+    needs: [generate-erlang, extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Download Erlang artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: generated-erlang
+          path: generated-erlang
+      - name: Configure Git
+        run: |
+          git config --global user.email "${{ env.GIT_USER_EMAIL }}"
+          git config --global user.name "${{ env.GIT_USER_NAME }}"
+      - name: Push Erlang Server
+        run: |
+          git checkout erlang_server_test || git checkout -b erlang_server_test
+          rm -rf ./*
+          cp -r generated-erlang/* .
+          git add .
+          git commit -m "Update generated Erlang server code from OpenAPI spec erl-${{ needs.extract-version.outputs.version }} [skip ci]"
+          git tag -a "erl-${{ needs.extract-version.outputs.version }}"
+          git push origin erlang_server_test
+          git push origin "erl-${{ needs.extract-version.outputs.version }}"
+
+  push-python:
+    needs: [generate-python, extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Download Python artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: generated-python
+          path: generated-python
+      - name: Configure Git
+        run: |
+          git config --global user.email "${{ env.GIT_USER_EMAIL }}"
+          git config --global user.name "${{ env.GIT_USER_NAME }}"
+      - name: Push Python Client
+        run: |
+          git checkout python_client_test || git checkout -b python_client_test
+          rm -rf ./*
+          cp -r generated-python/* .
+          git add .
+          git commit -m "Update generated Python client code from OpenAPI spec py-${{ needs.extract-version.outputs.version }} [skip ci]"
+          git tag -a "py-${{ needs.extract-version.outputs.version }}"
+          git push origin python_client_test
+          git push origin "py-${{ needs.extract-version.outputs.version }}" 
