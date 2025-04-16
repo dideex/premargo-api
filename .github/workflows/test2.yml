@@ -9,7 +9,7 @@ env:
   PYTHON_BRANCH: python_client_test
 
 jobs:
-  validate:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,6 +18,25 @@ jobs:
           node-version: '18'
       - name: Install OpenAPI Generator
         run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+      - name: Upload OpenAPI Generator
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-generator
+          path: /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
+
+  validate:
+    needs: [setup]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Download OpenAPI Generator
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-generator
+          path: /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
       - name: Validate OpenAPI Spec
         run: openapi-generator-cli validate -i ${{ env.SPEC_FILE }}
 
@@ -43,15 +62,18 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
   generate-erlang:
-    needs: [validate, extract-version]
+    needs: [validate, extract-version, setup]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - name: Install OpenAPI Generator
-        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+      - name: Download OpenAPI Generator
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-generator
+          path: /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
       - name: Generate Erlang Server
         run: |
           openapi-generator-cli generate \
@@ -69,15 +91,18 @@ jobs:
           path: generated-erlang
 
   generate-python:
-    needs: [validate, extract-version]
+    needs: [validate, extract-version, setup]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - name: Install OpenAPI Generator
-        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+      - name: Download OpenAPI Generator
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-generator
+          path: /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
       - name: Generate Python Client
         run: |
           openapi-generator-cli generate \
