@@ -5,6 +5,8 @@ env:
   SPEC_FILE: pets.yaml
   GIT_USER_EMAIL: "github-actions@exante.eu"
   GIT_USER_NAME: "GitHub Actions"
+  ERLANG_BRANCH: erlang_server_test
+  PYTHON_BRANCH: python_client_test
 
 jobs:
   validate:
@@ -110,7 +112,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
-          git checkout erlang_server_test || git checkout -b erlang_server_test
+          git checkout ${{ env.ERLANG_BRANCH }} || git checkout -b ${{ env.ERLANG_BRANCH }}
           echo "Contents before operations:"
           ls -la
           # Create a temporary directory to store the files we want to keep
@@ -127,7 +129,7 @@ jobs:
           git add .
           git commit -m "Update generated Erlang server code from OpenAPI spec erl-${{ needs.extract-version.outputs.version }} [skip ci]" || echo "No changes to commit"
           git tag -a "erl-${{ needs.extract-version.outputs.version }}" -m "Release erl-${{ needs.extract-version.outputs.version }}" || echo "Tag already exists"
-          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" erlang_server_test || echo "Branch is up to date"
+          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" ${{ env.ERLANG_BRANCH }} || echo "Branch is up to date"
           git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "erl-${{ needs.extract-version.outputs.version }}" || echo "Tag already pushed"
 
   push-python:
@@ -151,7 +153,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
-          git checkout python_client_test || git checkout -b python_client_test
+          git checkout ${{ env.PYTHON_BRANCH }} || git checkout -b ${{ env.PYTHON_BRANCH }}
           echo "Contents before operations:"
           ls -la
           # Create a temporary directory to store the files we want to keep
@@ -168,5 +170,5 @@ jobs:
           git add .
           git commit -m "Update generated Python client code from OpenAPI spec py-${{ needs.extract-version.outputs.version }} [skip ci]" || echo "No changes to commit"
           git tag -a "py-${{ needs.extract-version.outputs.version }}" -m "Release py-${{ needs.extract-version.outputs.version }}" || echo "Tag already exists"
-          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" python_client_test || echo "Branch is up to date"
+          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" ${{ env.PYTHON_BRANCH }} || echo "Branch is up to date"
           git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "py-${{ needs.extract-version.outputs.version }}" || echo "Tag already pushed" 
