@@ -102,14 +102,6 @@ jobs:
         with:
           name: generated-erlang
           path: generated-erlang
-      - name: Debug artifact download
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "Contents of generated-erlang directory:"
-          ls -la generated-erlang || echo "Directory is empty or doesn't exist"
-          echo "Contents of current directory:"
-          ls -la
       - name: Configure Git
         run: |
           git config --global user.email "${{ env.GIT_USER_EMAIL }}"
@@ -137,3 +129,44 @@ jobs:
           git tag -a "erl-${{ needs.extract-version.outputs.version }}" -m "Release erl-${{ needs.extract-version.outputs.version }}"
           git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" erlang_server_test
           git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "erl-${{ needs.extract-version.outputs.version }}"
+
+  push-python:
+    needs: [generate-python, extract-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GIT_TOKEN }}
+      - name: Download Python artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-python
+          path: generated-python
+      - name: Configure Git
+        run: |
+          git config --global user.email "${{ env.GIT_USER_EMAIL }}"
+          git config --global user.name "${{ env.GIT_USER_NAME }}"
+      - name: Push Python Client
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+        run: |
+          git checkout python_client_test || git checkout -b python_client_test
+          echo "Contents before operations:"
+          ls -la
+          # Create a temporary directory to store the files we want to keep
+          mkdir -p temp_backup
+          # Copy the generated files to temp directory
+          cp -rv generated-python/* temp_backup/
+          # Remove everything except .git and temp_backup
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'temp_backup' -exec rm -rf {} +
+          # Move files from temp_backup to current directory
+          mv temp_backup/* .
+          rm -rf temp_backup
+          echo "Contents after operations:"
+          ls -la
+          git add .
+          git commit -m "Update generated Python client code from OpenAPI spec py-${{ needs.extract-version.outputs.version }} [skip ci]"
+          git tag -a "py-${{ needs.extract-version.outputs.version }}" -m "Release py-${{ needs.extract-version.outputs.version }}"
+          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" python_client_test
+          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "py-${{ needs.extract-version.outputs.version }}" 
