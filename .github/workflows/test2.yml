@@ -95,7 +95,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Download Erlang artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: generated-erlang
           path: generated-erlang
