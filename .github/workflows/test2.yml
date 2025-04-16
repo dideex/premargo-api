@@ -60,7 +60,7 @@ jobs:
             -t ./template/erlang-api \
             --openapi-generator-ignore-list "src/openapi_auth.erl"
       - name: Upload Erlang artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: generated-erlang
           path: generated-erlang
