@@ -21,11 +21,16 @@ jobs:
           npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
           mkdir -p openapi-generator
           # Find the actual installation path
-          GENERATOR_PATH=$(npm list -g @openapitools/openapi-generator-cli | grep openapi-generator-cli | head -n 1 | awk '{print $2}')
+          GENERATOR_PATH=$(find /opt/hostedtoolcache -name "openapi-generator-cli" -type d | head -n 1)
           if [ -z "$GENERATOR_PATH" ]; then
-            GENERATOR_PATH="/opt/hostedtoolcache/node/18.*/x64/lib/node_modules/@openapitools/openapi-generator-cli"
+            GENERATOR_PATH=$(find /usr/local -name "openapi-generator-cli" -type d | head -n 1)
           fi
-          cp -r $GENERATOR_PATH/* openapi-generator/
+          if [ -z "$GENERATOR_PATH" ]; then
+            echo "Error: Could not find openapi-generator-cli installation"
+            exit 1
+          fi
+          echo "Found generator at: $GENERATOR_PATH"
+          cp -rv "$GENERATOR_PATH"/* openapi-generator/
       - name: Upload OpenAPI Generator
         uses: actions/upload-artifact@v4
         with:
