@@ -18,13 +18,11 @@ jobs:
           node-version: '18'
       - name: Install OpenAPI Generator
         run: |
+          npm config set prefix /usr/local
           npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
           mkdir -p openapi-generator
           # Find the actual installation path
-          GENERATOR_PATH=$(find /opt/hostedtoolcache -name "openapi-generator-cli" -type d | head -n 1)
-          if [ -z "$GENERATOR_PATH" ]; then
-            GENERATOR_PATH=$(find /usr/local -name "openapi-generator-cli" -type d | head -n 1)
-          fi
+          GENERATOR_PATH=$(find /usr/local/lib/node_modules -name "openapi-generator-cli" -type d | head -n 1)
           if [ -z "$GENERATOR_PATH" ]; then
             echo "Error: Could not find openapi-generator-cli installation"
             exit 1
@@ -53,11 +51,15 @@ jobs:
           path: openapi-generator
       - name: Setup OpenAPI Generator
         run: |
+          npm config set prefix /usr/local
           mkdir -p /usr/local/lib/node_modules/@openapitools
           cp -rv openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
           ln -sf /usr/local/lib/node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator-cli /usr/local/bin/openapi-generator-cli
+          echo "PATH=$PATH:/usr/local/bin" >> $GITHUB_ENV
       - name: Validate OpenAPI Spec
-        run: openapi-generator-cli validate -i ${{ env.SPEC_FILE }}
+        run: |
+          which openapi-generator-cli
+          openapi-generator-cli validate -i ${{ env.SPEC_FILE }}
 
   extract-version:
     runs-on: ubuntu-latest
@@ -95,11 +97,14 @@ jobs:
           path: openapi-generator
       - name: Setup OpenAPI Generator
         run: |
+          npm config set prefix /usr/local
           mkdir -p /usr/local/lib/node_modules/@openapitools
           cp -rv openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
           ln -sf /usr/local/lib/node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator-cli /usr/local/bin/openapi-generator-cli
+          echo "PATH=$PATH:/usr/local/bin" >> $GITHUB_ENV
       - name: Generate Erlang Server
         run: |
+          which openapi-generator-cli
           openapi-generator-cli generate \
             -i ${{ env.SPEC_FILE }} \
             -g erlang-server \
@@ -129,11 +134,14 @@ jobs:
           path: openapi-generator
       - name: Setup OpenAPI Generator
         run: |
+          npm config set prefix /usr/local
           mkdir -p /usr/local/lib/node_modules/@openapitools
           cp -rv openapi-generator /usr/local/lib/node_modules/@openapitools/openapi-generator-cli
           ln -sf /usr/local/lib/node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator-cli /usr/local/bin/openapi-generator-cli
+          echo "PATH=$PATH:/usr/local/bin" >> $GITHUB_ENV
       - name: Generate Python Client
         run: |
+          which openapi-generator-cli
           openapi-generator-cli generate \
             -i ${{ env.SPEC_FILE }} \
             -g python \
