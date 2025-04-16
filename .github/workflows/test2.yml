@@ -1,0 +1,42 @@
+name: Validate and extract
+on: [push]
+env:
+  OPENAPI_GENERATOR_VERSION: 6.6.0
+  SPEC_FILE: pets.yaml
+  GIT_USER_EMAIL: "github-actions@exante.eu"
+  GIT_USER_NAME: "GitHub Actions"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install OpenAPI Generator
+        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+      - name: Validate OpenAPI Spec
+        run: openapi-generator-cli validate -i ${{ env.SPEC_FILE }}
+
+  extract-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install js-yaml
+      - name: Extract version
+        id: extract
+        run: |
+          VERSION=$(node -e "
+          const yaml = require('js-yaml');
+          const fs = require('fs');
+          const spec = yaml.load(fs.readFileSync('${{ env.SPEC_FILE }}', 'utf8'));
+          console.log(spec.info.version);
+          ")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
