@@ -1,7 +1,7 @@
 name: OpenAPI Generator
 on: [push]
 env:
-  OPENAPI_GENERATOR_VERSION: 2.7.0
+  OPENAPI_GENERATOR_VERSION: 7.12.0
   SPEC_FILE: pets.yaml
   GIT_USER_EMAIL: "github-actions@exante.eu"
   GIT_USER_NAME: "GitHub Actions"
