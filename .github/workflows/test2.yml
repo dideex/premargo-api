@@ -1,7 +1,7 @@
 name: Validate and extract
 on: [push]
 env:
-  OPENAPI_GENERATOR_VERSION: 6.6.0
+  OPENAPI_GENERATOR_VERSION: 2.7.0
   SPEC_FILE: pets.yaml
   GIT_USER_EMAIL: "github-actions@exante.eu"
   GIT_USER_NAME: "GitHub Actions"
