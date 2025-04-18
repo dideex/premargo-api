@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   description: >-
     There is a new description.
-  version: 1.0.1
+  version: 1.0.2
   title: OpenAPI Template
   license:
     name: Apache-2.0
