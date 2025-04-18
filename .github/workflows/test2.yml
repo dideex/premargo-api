@@ -19,7 +19,6 @@ jobs:
       - name: Install OpenAPI Generator
         run: |
           npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }}
-          echo "PATH=$PATH:$(pwd)/node_modules/.bin" >> $GITHUB_ENV
       - name: Validate OpenAPI Spec
         run: |
           which openapi-generator-cli
@@ -58,7 +57,6 @@ jobs:
       - name: Install OpenAPI Generator
         run: |
           npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }}
-          echo "PATH=$PATH:$(pwd)/node_modules/.bin" >> $GITHUB_ENV
       - name: Generate Erlang Server
         run: |
           which openapi-generator-cli
@@ -118,7 +116,6 @@ jobs:
       - name: Install OpenAPI Generator
         run: |
           npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }}
-          echo "PATH=$PATH:$(pwd)/node_modules/.bin" >> $GITHUB_ENV
       - name: Generate Python Client
         run: |
           which openapi-generator-cli
