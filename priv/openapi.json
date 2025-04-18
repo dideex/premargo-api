@@ -7,7 +7,7 @@
       "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
     "title" : "OpenAPI Template",
-    "version" : "1.0.2"
+    "version" : "1.0.3"
   },
   "externalDocs" : {
     "description" : "Find out more about Swagger",
