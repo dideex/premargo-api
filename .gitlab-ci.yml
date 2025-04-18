@@ -1,7 +1,7 @@
 image: nexus.dev.zorg.sh:5000/xnt/build/npm:18
 
 variables:
-  OPENAPI_GENERATOR_VERSION: 2.19.0
+  OPENAPI_GENERATOR_VERSION: 7.9.0
   SPEC_FILE: openapi.yaml
   GIT_USER_EMAIL: "gitlab-ci@exante.eu"
   GIT_USER_NAME: "GitLab CI"
