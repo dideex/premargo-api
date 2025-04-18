@@ -14,6 +14,7 @@ stages:
 
 validate:
   stage: validate
+  image: node:18
   tags:
     - docker
   script:
