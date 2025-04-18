@@ -1,5 +1,40 @@
-image: eu.gcr.io/cloud-registry-xnt/ops/cloud-sdk-erl:26.2.3
+image: nexus.dev.zorg.sh:5000/xnt/build/npm:18
 
-hello-world:
+variables:
+  OPENAPI_GENERATOR_VERSION: 2.19.0
+  SPEC_FILE: openapi.yaml
+  GIT_USER_EMAIL: "gitlab-ci@exante.eu"
+  GIT_USER_NAME: "GitLab CI"
+  ERLANG_BRANCH: erlang_server_test
+  PYTHON_BRANCH: python_client_test
+
+stages:
+  - validate
+  - extract_version
+
+validate:
+  stage: validate
+  tags:
+    - docker
   script:
-    - echo "Hello World!" 
+    - npm install @openapitools/openapi-generator-cli@${OPENAPI_GENERATOR_VERSION}
+    - export PATH=$PATH:$(pwd)/node_modules/.bin
+    - which openapi-generator-cli
+    - openapi-generator-cli validate -i ${SPEC_FILE}
+
+extract_version:
+  stage: extract_version
+  tags:
+    - docker
+  script:
+    - npm install js-yaml
+    - VERSION=$(node -e "
+      const yaml = require('js-yaml');
+      const fs = require('fs');
+      const spec = yaml.load(fs.readFileSync('${SPEC_FILE}', 'utf8'));
+      console.log(spec.info.version);
+      ")
+    - echo "VERSION=${VERSION}" >> version.env
+  artifacts:
+    reports:
+      dotenv: version.env

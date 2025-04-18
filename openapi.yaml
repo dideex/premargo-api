@@ -1,6 +1,4 @@
 openapi: 3.0.0
-servers:
-  - url: 'localhost:8080/v2'
 info:
   description: >-
     There is a new description.
