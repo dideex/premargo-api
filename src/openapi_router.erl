@@ -49,56 +49,56 @@ get_operations() ->
     #{ 
        'addPet' => #{
             servers => [],
-            base_path => "/v2",
+            base_path => "",
             path => "/pet",
             method => <<"POST">>,
             handler => 'openapi_pet_handler'
         },
        'deletePet' => #{
             servers => [],
-            base_path => "/v2",
+            base_path => "",
             path => "/pet/:petId",
             method => <<"DELETE">>,
             handler => 'openapi_pet_handler'
         },
        'findPetsByStatus' => #{
             servers => [],
-            base_path => "/v2",
+            base_path => "",
             path => "/pet/findByStatus",
             method => <<"GET">>,
             handler => 'openapi_pet_handler'
         },
        'findPetsByTags' => #{
             servers => [],
-            base_path => "/v2",
+            base_path => "",
             path => "/pet/findByTags",
             method => <<"GET">>,
             handler => 'openapi_pet_handler'
         },
        'getPetById' => #{
             servers => [],
-            base_path => "/v2",
+            base_path => "",
             path => "/pet/:petId",
             method => <<"GET">>,
             handler => 'openapi_pet_handler'
         },
        'updatePet' => #{
             servers => [],
-            base_path => "/v2",
+            base_path => "",
             path => "/pet",
             method => <<"PUT">>,
             handler => 'openapi_pet_handler'
         },
        'updatePetWithForm' => #{
             servers => [],
-            base_path => "/v2",
+            base_path => "",
             path => "/pet/:petId",
             method => <<"POST">>,
             handler => 'openapi_pet_handler'
         },
        'uploadFile' => #{
             servers => [],
-            base_path => "/v2",
+            base_path => "",
             path => "/pet/:petId/uploadImage",
             method => <<"POST">>,
             handler => 'openapi_pet_handler'
