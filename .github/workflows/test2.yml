@@ -96,7 +96,7 @@ jobs:
           cd priv/swagger
           curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.11.8.tar.gz | tar xz --strip-components=2 swagger-ui-5.11.8/dist/
           # Update the URL in index.html to point to our spec
-          sed -i 's|https://petstore.swagger.io/v2/swagger.json|openapi.json|g' index.html
+          sed -i 's|"https://petstore.swagger.io/v2/swagger.json"|window.location.origin + "/api-docs/openapi.json"|g' swagger-initializer.js
           # Clean up unnecessary files
           rm -rf .git* *.md
           cd ../..
