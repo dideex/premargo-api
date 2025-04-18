@@ -91,16 +91,21 @@ jobs:
           path: generated-erlang
       - name: Install Swagger UI
         run: |
-          mkdir -p generated-erlang/priv/swagger
-          cd generated-erlang/priv/swagger
+          cd generated-erlang
+          mkdir -p priv/swagger
+          cd priv/swagger
           curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.11.8.tar.gz | tar xz --strip-components=2 swagger-ui-5.11.8/dist/
           # Update the URL in index.html to point to our spec
           sed -i 's|https://petstore.swagger.io/v2/swagger.json|openapi.json|g' index.html
+          # Clean up unnecessary files
+          rm -rf .git* *.md
+          cd ../..
       - name: Upload updated Erlang artifacts
         uses: actions/upload-artifact@v4
         with:
           name: generated-erlang
           path: generated-erlang
+          if-no-files-found: error
 
   generate-python:
     needs: [validate, extract-version]
