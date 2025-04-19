@@ -14,12 +14,11 @@ stages:
 
 validate:
   stage: validate
-  image: openjdk:11
+  image: openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION}
   tags:
     - docker
   script:
-    - wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_VERSION}.jar -O openapi-generator-cli.jar
-    - java -jar openapi-generator-cli.jar validate -i ${SPEC_FILE}
+    - openapi-generator-cli validate -i ${SPEC_FILE}
 
 extract_version:
   stage: extract_version
