@@ -18,7 +18,7 @@ validate:
   tags:
     - docker
   script:
-    - openapi-generator-cli validate -i ${SPEC_FILE}
+    - java -jar /opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar validate -i ${SPEC_FILE}
 
 extract_version:
   stage: extract_version
