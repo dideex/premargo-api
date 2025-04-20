@@ -1,10 +1,8 @@
 openapi: 3.0.0
-servers:
-  - url: 'localhost:8080/v2'
 info:
   description: >-
     There is a new description.
-  version: 1.0.1
+  version: 1.0.6
   title: OpenAPI Template
   license:
     name: Apache-2.0

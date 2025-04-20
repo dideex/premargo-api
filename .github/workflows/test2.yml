@@ -1,10 +1,12 @@
 name: OpenAPI Generator
 on: [push]
 env:
-  OPENAPI_GENERATOR_VERSION: 2.7.0
-  SPEC_FILE: pets.yaml
+  OPENAPI_GENERATOR_VERSION: 2.19.0
+  SPEC_FILE: schema.yaml
   GIT_USER_EMAIL: "github-actions@exante.eu"
   GIT_USER_NAME: "GitHub Actions"
+  ERLANG_BRANCH: erlang_server_test
+  PYTHON_BRANCH: python_client_test
 
 jobs:
   validate:
@@ -15,9 +17,13 @@ jobs:
         with:
           node-version: '18'
       - name: Install OpenAPI Generator
-        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+        run: |
+          npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }}
+          echo "PATH=$PATH:$(pwd)/node_modules/.bin" >> $GITHUB_ENV
       - name: Validate OpenAPI Spec
-        run: openapi-generator-cli validate -i ${{ env.SPEC_FILE }}
+        run: |
+          which openapi-generator-cli
+          openapi-generator-cli validate -i ${{ env.SPEC_FILE }}
 
   extract-version:
     runs-on: ubuntu-latest
@@ -50,14 +56,17 @@ jobs:
         with:
           node-version: '18'
       - name: Install OpenAPI Generator
-        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+        run: |
+          npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }}
+          echo "PATH=$PATH:$(pwd)/node_modules/.bin" >> $GITHUB_ENV
       - name: Generate Erlang Server
         run: |
+          which openapi-generator-cli
           openapi-generator-cli generate \
             -i ${{ env.SPEC_FILE }} \
             -g erlang-server \
             -o ./generated-erlang \
-            -t ./template/erlang-api \
+            -c ./config.yaml \
             --openapi-generator-ignore-list "src/openapi_auth.erl"
       - name: List generated files
         run: ls -la ./generated-erlang || echo "No files generated"
@@ -66,6 +75,37 @@ jobs:
         with:
           name: generated-erlang
           path: generated-erlang
+
+  generate-swagger-ui:
+    needs: [generate-erlang, generate-python]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Download Erlang artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-erlang
+          path: generated-erlang
+      - name: Install Swagger UI
+        run: |
+          cd generated-erlang
+          mkdir -p priv/swagger
+          cd priv/swagger
+          curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.11.8.tar.gz | tar xz --strip-components=2 swagger-ui-5.11.8/dist/
+          # Update the URL in index.html to point to our spec
+          sed -i 's|"https://petstore.swagger.io/v2/swagger.json"|window.location.origin + "/api-docs/openapi.json"|g' swagger-initializer.js
+          # Clean up unnecessary files
+          rm -rf .git* *.md
+          cd ../..
+      - name: Upload updated Erlang artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-erlang-with-swagger
+          path: generated-erlang
+          if-no-files-found: error
 
   generate-python:
     needs: [validate, extract-version]
@@ -76,9 +116,12 @@ jobs:
         with:
           node-version: '18'
       - name: Install OpenAPI Generator
-        run: npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }} -g
+        run: |
+          npm install @openapitools/openapi-generator-cli@${{ env.OPENAPI_GENERATOR_VERSION }}
+          echo "PATH=$PATH:$(pwd)/node_modules/.bin" >> $GITHUB_ENV
       - name: Generate Python Client
         run: |
+          which openapi-generator-cli
           openapi-generator-cli generate \
             -i ${{ env.SPEC_FILE }} \
             -g python \
@@ -90,7 +133,7 @@ jobs:
           path: generated-python
 
   push-erlang:
-    needs: [generate-erlang, extract-version]
+    needs: [generate-swagger-ui, extract-version]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -100,7 +143,7 @@ jobs:
       - name: Download Erlang artifacts
         uses: actions/download-artifact@v4
         with:
-          name: generated-erlang
+          name: generated-erlang-with-swagger
           path: generated-erlang
       - name: Configure Git
         run: |
@@ -110,9 +153,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
-          git checkout erlang_server_test || git checkout -b erlang_server_test
-          echo "Contents before operations:"
-          ls -la
+          git checkout ${{ env.ERLANG_BRANCH }} || git checkout -b ${{ env.ERLANG_BRANCH }}
           # Create a temporary directory to store the files we want to keep
           mkdir -p temp_backup
           # Copy the generated files to temp directory
@@ -122,16 +163,14 @@ jobs:
           # Move files from temp_backup to current directory
           mv temp_backup/* .
           rm -rf temp_backup
-          echo "Contents after operations:"
-          ls -la
           git add .
           git commit -m "Update generated Erlang server code from OpenAPI spec erl-${{ needs.extract-version.outputs.version }} [skip ci]" || echo "No changes to commit"
           git tag -a "erl-${{ needs.extract-version.outputs.version }}" -m "Release erl-${{ needs.extract-version.outputs.version }}" || echo "Tag already exists"
-          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" erlang_server_test || echo "Branch is up to date"
+          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" ${{ env.ERLANG_BRANCH }} || echo "Branch is up to date"
           git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "erl-${{ needs.extract-version.outputs.version }}" || echo "Tag already pushed"
 
   push-python:
-    needs: [generate-python, extract-version]
+    needs: [generate-swagger-ui, extract-version]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -151,9 +190,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
-          git checkout python_client_test || git checkout -b python_client_test
-          echo "Contents before operations:"
-          ls -la
+          git checkout ${{ env.PYTHON_BRANCH }} || git checkout -b ${{ env.PYTHON_BRANCH }}
           # Create a temporary directory to store the files we want to keep
           mkdir -p temp_backup
           # Copy the generated files to temp directory
@@ -163,10 +200,8 @@ jobs:
           # Move files from temp_backup to current directory
           mv temp_backup/* .
           rm -rf temp_backup
-          echo "Contents after operations:"
-          ls -la
           git add .
           git commit -m "Update generated Python client code from OpenAPI spec py-${{ needs.extract-version.outputs.version }} [skip ci]" || echo "No changes to commit"
           git tag -a "py-${{ needs.extract-version.outputs.version }}" -m "Release py-${{ needs.extract-version.outputs.version }}" || echo "Tag already exists"
-          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" python_client_test || echo "Branch is up to date"
-          git push "https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "py-${{ needs.extract-version.outputs.version }}" || echo "Tag already pushed" 
+          git push "https://${{ secrets.GIT_TOKEN }}@github.com/${{ github.repository }}.git" ${{ env.PYTHON_BRANCH }} || echo "Branch is up to date"
+          git push "https://${{ secrets.GIT_TOKEN }}@github.com/${{ github.repository }}.git" "py-${{ needs.extract-version.outputs.version }}" || echo "Tag already pushed" 
