@@ -10,6 +10,7 @@ and `validate_response/4` respectively.
 -export([prepare_validator/0, prepare_validator/1, prepare_validator/2]).
 -export([populate_request/3, validate_response/4]).
 -export([format_error_description/4]).
+-export([swagger_schema/0]).
 
 -ignore_xref([populate_request/3, validate_response/4]).
 -ignore_xref([prepare_validator/0, prepare_validator/1, prepare_validator/2]).
@@ -31,10 +32,13 @@ and `validate_response/4` respectively.
     {error, unknown_operation}.
 
 -type request_param() :: atom().
+-type swagger_json() :: map().
 
--export_type([class/0, operation_id/0]).
+-export_type([class/0, operation_id/0, swagger_json/0]).
 
 -dialyzer({nowarn_function, [validate_response_body/4]}).
+
+-define(JSON_CACHE_KEY, openapi_schema_json).
 
 -type rule() ::
     {type, binary} |
@@ -74,6 +78,13 @@ Loads the JSON schema and the desired validation draft into a `t:jesse_state:sta
 prepare_validator(OpenApiPath, SchemaVer) ->
     JsonSchema = schema_from_cache(OpenApiPath),
     jesse_state:new(JsonSchema, [{default_schema_ver, SchemaVer}]).
+
+-doc """
+Provides decoded JSON schema for swagger ui
+""".
+-spec swagger_schema() -> swagger_json().
+swagger_schema() ->
+    schema_from_cache(get_openapi_path()).
 
 -doc """
 Automatically loads the entire body from the cowboy req
@@ -626,11 +637,11 @@ format_value(Val) when is_list(Val) -> list_to_binary(io_lib:format("~p", [Val])
 format_value(Val) -> list_to_binary(io_lib:format("~p", [Val])).
 
 schema_from_cache(OpenApiPath) ->
-    case persistent_term:get(open_api_schema, undefined) of
+    case persistent_term:get(?JSON_CACHE_KEY, undefined) of
         undefined ->
             {ok, FileContents} = file:read_file(OpenApiPath),
             R = json:decode(FileContents),
-            persistent_term:put(open_api_schema, R),
+            persistent_term:put(?JSON_CACHE_KEY, R),
             R;
         Schema ->
             Schema
