@@ -61,14 +61,14 @@ accept_callback(Class, OperationID, Req, Context) ->
                  operation_id => OperationID,
                  request => Req,
                  context => Context}),
-    {false, Req, Context}.
+    {401, stop, Req, Context}.
 
 -spec provide_callback({{packageName}}_api:class(), {{packageName}}_api:operation_id(), cowboy_req:req(), context()) ->
-    {code(), response(), cowboy_req:req(), context()}.
+    {code(), provide_callback_return(), cowboy_req:req(), context()}.
 provide_callback(Class, OperationID, Req, Context) ->
     ?LOG_ERROR(#{what => "Got not implemented request to process",
                  class => Class,
                  operation_id => OperationID,
                  request => Req,
                  context => Context}),
-    {<<>>, Req, Context}.
+    {401, stop, Req, Context}.
