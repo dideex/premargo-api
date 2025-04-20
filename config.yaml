@@ -2,7 +2,7 @@ additionalProperties:
   artifactId: erlang-generated
   serializableModel: "true"
   dateLibrary: java8
-templateDir: erlang-api
+templateDir: template/erlang-api
 files:
   swagger.mustache:
     folder: src
