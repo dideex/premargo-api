@@ -40,6 +40,8 @@ extract_version:
 
 generate-erlang:
   stage: generate
+  tags:
+    - docker
   image: openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION}
   variables:
     GENERATOR_NAME: erlang-server
@@ -60,6 +62,8 @@ generate-erlang:
 
 generate-python:
   stage: generate
+  tags:
+    - docker
   image: openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION}
   variables:
     GENERATOR_NAME: python
