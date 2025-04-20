@@ -12,6 +12,7 @@ stages:
   - validate
   - extract_version
   - generate
+  - swagger_ui
 
 validate:
   stage: validate
@@ -78,3 +79,22 @@ generate-python:
       - ${OUTPUT_DIR}
   dependencies:
     - validate 
+
+generate_swagger_ui:
+  stage: swagger_ui
+  tags:
+    - docker
+  needs:
+    - generate-erlang
+    - generate-python
+  script:
+    - cd generated-erlang
+    - mkdir -p priv/swagger
+    - cd priv/swagger
+    - curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.11.8.tar.gz | tar xz --strip-components=2 swagger-ui-5.11.8/dist/
+    - sed -i 's|"https://petstore.swagger.io/v2/swagger.json"|window.location.origin + "/api-docs/openapi.json"|g' swagger-initializer.js
+    - rm -rf .git* *.md
+    - cd ../..
+  artifacts:
+    paths:
+      - generated-erlang/
