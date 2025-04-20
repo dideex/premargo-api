@@ -10,6 +10,7 @@ There is a new description.
 
 -spec start(term(), #{transport      => tcp | ssl,
                       transport_opts => ranch:opts(),
+                      swagger_json_handler => openapi_swagger:swagger_json_handler(),
                       protocol_opts  => cowboy:opts(),
                       service_routes => cowboy_router:routes(),
                       logic_handler  => module()}) ->
@@ -20,7 +21,8 @@ start(ID, Params) ->
     ProtocolOpts = maps:get(procotol_opts, Params, #{}),
     LogicHandler = maps:get(logic_handler, Params, ?DEFAULT_LOGIC_HANDLER),
     ServiceRoutes = maps:get(service_routes, Params, []),
-    CowboyOpts = get_cowboy_config(LogicHandler, ProtocolOpts, ServiceRoutes),
+    SwaggerHandler = maps:get(swagger_json_handler, Params, undefined),
+    CowboyOpts = get_cowboy_config(LogicHandler, ProtocolOpts, ServiceRoutes, SwaggerHandler),
     case Transport of
         ssl ->
             cowboy:start_tls(ID, TransportOpts, CowboyOpts);
@@ -28,8 +30,8 @@ start(ID, Params) ->
             cowboy:start_clear(ID, TransportOpts, CowboyOpts)
     end.
 
-get_cowboy_config(LogicHandler, ExtraOpts, ServiceRoutes) ->
-    DefaultOpts = get_default_opts(LogicHandler, ServiceRoutes),
+get_cowboy_config(LogicHandler, ExtraOpts, ServiceRoutes, SwaggerHandler) ->
+    DefaultOpts = get_default_opts(LogicHandler, ServiceRoutes, SwaggerHandler),
     maps:fold(fun do_get_cowboy_config/3, DefaultOpts, ExtraOpts).
 
 do_get_cowboy_config(env, #{dispatch := _Dispatch} = Env, AccIn) ->
@@ -40,9 +42,9 @@ do_get_cowboy_config(env, NewEnv, #{env := OldEnv} = AccIn) ->
 do_get_cowboy_config(Key, Value, AccIn) ->
     AccIn#{Key => Value}.
 
-get_default_dispatch(LogicHandler, ServiceRoutes) ->
-    Paths = openapi_router:get_paths(LogicHandler, ServiceRoutes),
+get_default_dispatch(LogicHandler, ServiceRoutes, SwaggerHandler) ->
+    Paths = openapi_router:get_paths(LogicHandler, ServiceRoutes, SwaggerHandler),
     #{dispatch => cowboy_router:compile(Paths)}.
 
-get_default_opts(LogicHandler, ServiceRoutes) ->
-    #{env => get_default_dispatch(LogicHandler, ServiceRoutes)}.
+get_default_opts(LogicHandler, ServiceRoutes, SwaggerHandler) ->
+    #{env => get_default_dispatch(LogicHandler, ServiceRoutes, SwaggerHandler)}.
