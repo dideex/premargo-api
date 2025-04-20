@@ -245,7 +245,6 @@ handle_type_provided(Req, #state{operation_id = OperationID,
             Context1 = maps:merge(Context, Model),
             {Code, Res, Req2, State2} = handle_result(Handler(pet, OperationID, Req1, Context1), State),
             validate_response(ValidateHandler, OperationID, Code, Res, ValidatorState),
-            openapi_api:validate_response(OperationID, Code, Res, ValidatorState),
             process_response(Code, Res, Req2, State2);
         {error, Reason, ErrReq} ->
             process_response(400, format_error(Reason), ErrReq, State)
