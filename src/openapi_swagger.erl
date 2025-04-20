@@ -1,7 +1,7 @@
 -module(openapi_swagger).
 -moduledoc """
 JSON Swagger handler
-
+Updates the generated opanapi json schema
 """.
 
 -behaviour(cowboy_rest).

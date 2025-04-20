@@ -245,12 +245,15 @@ handle_type_provided(Req, #state{operation_id = OperationID,
             Context1 = maps:merge(Context, Model),
             {Code, Res, Req2, State2} = handle_result(Handler(pet, OperationID, Req1, Context1), State),
             validate_response(ValidateHandler, OperationID, Code, Res, ValidatorState),
+            openapi_api:validate_response(OperationID, Code, Res, ValidatorState),
             process_response(Code, Res, Req2, State2);
         {error, Reason, ErrReq} ->
             process_response(400, format_error(Reason), ErrReq, State)
     end.
 
 validate_response(undefined, _OperationID, _Code, _Res, _ValidatorState) ->
+    ok;
+validate_response(_Handler, _OperationID, _Code, stop, _ValidatorState) ->
     ok;
 validate_response(Handler, OperationID, Code, Res, ValidatorState) ->
     Handler(pet, OperationID, Code, Res, ValidatorState).
@@ -269,6 +272,8 @@ handle_result({Code, Res, Req, Context}, State) ->
 
 -spec process_response(pos_integer(), openapi_logic_handler:provide_callback_return(), cowboy_req:req(), state()) -> 
     {stop, cowboy_req:req(), state()}.
+process_response(_Code, stop, Req, State) ->
+    {stop, Req, State};
 process_response(Code, Res, Req, State) ->
     Req2 = cowboy_req:set_resp_header(<<"content-type">>, <<"application/json">>, Req),
     Res3 = cowboy_req:set_resp_body(json:encode(Res), Req2),
