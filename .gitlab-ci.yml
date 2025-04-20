@@ -11,6 +11,7 @@ variables:
 stages:
   - validate
   - extract_version
+  - generate
 
 validate:
   stage: validate
@@ -36,3 +37,40 @@ extract_version:
   artifacts:
     reports:
       dotenv: version.env
+
+generate-erlang:
+  stage: generate
+  image: openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION}
+  variables:
+    GENERATOR_NAME: erlang-server
+    OUTPUT_DIR: ./generated-erlang
+    TEMPLATE_DIR: ./template/erlang-api
+  script:
+    - java -jar /opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar generate
+      -i ${SPEC_FILE}
+      -g ${GENERATOR_NAME}
+      -o ${OUTPUT_DIR}
+      -c ./config.yaml \
+      --openapi-generator-ignore-list "src/openapi_auth.erl"
+  artifacts:
+    paths:
+      - ${OUTPUT_DIR}
+  dependencies:
+    - validate
+
+generate-python:
+  stage: generate
+  image: openapitools/openapi-generator-cli:v${OPENAPI_GENERATOR_VERSION}
+  variables:
+    GENERATOR_NAME: python
+    OUTPUT_DIR: ./generated-python
+  script:
+    - java -jar /opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar generate
+      -i ${SPEC_FILE}
+      -g ${GENERATOR_NAME}
+      -o ${OUTPUT_DIR}
+  artifacts:
+    paths:
+      - ${OUTPUT_DIR}
+  dependencies:
+    - validate 
