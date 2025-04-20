@@ -1,132 +1,171 @@
-image: nexus.dev.zorg.sh:5000/xnt/build/npm:18
-
-stages:
-  - validate
-  - extract-version
-  - generate
-  - push
-
 variables:
-  OPENAPI_GENERATOR_VERSION: 6.6.0
+  OPENAPI_GENERATOR_VERSION: 2.19.0
   SPEC_FILE: pets.yaml
   GIT_USER_EMAIL: "gitlab-ci@exante.eu"
   GIT_USER_NAME: "GitLab CI"
+  ERLANG_BRANCH: erlang_server_test
+  PYTHON_BRANCH: python_client_test
 
-.validate-template: &validate-template
-  before_script:
-    - npm install @openapitools/openapi-generator-cli@${OPENAPI_GENERATOR_VERSION} -g
+stages:
+  - validate
+  - extract_version
+  - generate
+  - swagger_ui
+  - push
 
-validate-spec:
+validate:
   stage: validate
-  <<: *validate-template
+  image: node:18
   script:
-    - openapi-generator-cli validate -i $SPEC_FILE
+    - npm install @openapitools/openapi-generator-cli@${OPENAPI_GENERATOR_VERSION}
+    - export PATH=$PATH:$(pwd)/node_modules/.bin
+    - which openapi-generator-cli
+    - openapi-generator-cli validate -i ${SPEC_FILE}
 
-extract-version:
-  stage: extract-version
-  before_script:
-    - npm install js-yaml
+extract_version:
+  stage: extract_version
+  image: node:18
   script:
-    - |
-      node -e "
+    - npm install js-yaml
+    - VERSION=$(node -e "
       const yaml = require('js-yaml');
       const fs = require('fs');
-      const spec = yaml.load(fs.readFileSync('$SPEC_FILE', 'utf8'));
-      fs.writeFileSync('version', spec.info.version);
-      "
+      const spec = yaml.load(fs.readFileSync('${SPEC_FILE}', 'utf8'));
+      console.log(spec.info.version);
+      ")
+    - echo "VERSION=${VERSION}" >> version.env
   artifacts:
-    paths:
-      - version
-  only:
-    - main
+    reports:
+      dotenv: version.env
 
-generate-erlang:
+generate_erlang:
   stage: generate
-  <<: *validate-template
-  variables:
-    GENERATOR_NAME: erlang-server
-    OUTPUT_DIR: ./generated-erlang
-    TEMPLATE_DIR: ./template/erlang-api
+  image: node:18
+  needs:
+    - validate
+    - extract_version
   script:
-    - openapi-generator-cli generate
-      -i $SPEC_FILE
-      -g $GENERATOR_NAME
-      -o $OUTPUT_DIR
-      -t $TEMPLATE_DIR
-      --openapi-generator-ignore-list "src/openapi_auth.erl"
+    - npm install @openapitools/openapi-generator-cli@${OPENAPI_GENERATOR_VERSION}
+    - export PATH=$PATH:$(pwd)/node_modules/.bin
+    - which openapi-generator-cli
+    - openapi-generator-cli generate \
+        -i ${SPEC_FILE} \
+        -g erlang-server \
+        -o ./generated-erlang \
+        -t ./template/erlang-api \
+        --openapi-generator-ignore-list "src/openapi_auth.erl"
+    - ls -la ./generated-erlang || echo "No files generated"
   artifacts:
     paths:
-      - $OUTPUT_DIR
+      - generated-erlang/
   only:
-    - main
-  dependencies:
-    - extract-version
+    - master 
 
-generate-python:
+generate_swagger_ui:
+  stage: swagger_ui
+  image: node:18
+  needs:
+    - generate_erlang
+  script:
+    - cd generated-erlang
+    - mkdir -p priv/swagger
+    - cd priv/swagger
+    - curl -L https://github.com/swagger-api/swagger-ui/archive/refs/tags/v5.11.8.tar.gz | tar xz --strip-components=2 swagger-ui-5.11.8/dist/
+    - sed -i 's|"https://petstore.swagger.io/v2/swagger.json"|window.location.origin + "/api-docs/openapi.json"|g' swagger-initializer.js
+    - rm -rf .git* *.md
+    - cd ../..
+  artifacts:
+    paths:
+      - generated-erlang/
+  only:
+    - master 
+
+generate_python:
   stage: generate
-  <<: *validate-template
-  variables:
-    GENERATOR_NAME: python
-    OUTPUT_DIR: ./generated-python
+  image: node:18
+  needs:
+    - validate
+    - extract_version
   script:
-    - openapi-generator-cli generate
-      -i $SPEC_FILE
-      -g $GENERATOR_NAME
-      -o $OUTPUT_DIR
+    - npm install @openapitools/openapi-generator-cli@${OPENAPI_GENERATOR_VERSION}
+    - export PATH=$PATH:$(pwd)/node_modules/.bin
+    - which openapi-generator-cli
+    - openapi-generator-cli generate \
+        -i ${SPEC_FILE} \
+        -g python \
+        -o ./generated-python
   artifacts:
     paths:
-      - $OUTPUT_DIR
+      - generated-python/
   only:
-    - main
-  dependencies:
-    - extract-version
+    - master 
 
-push-erlang-server:
+push_erlang:
   stage: push
-  <<: *validate-template
+  image: node:18
+  needs:
+    - generate_swagger_ui
+    - extract_version
   before_script:
-    - apk add --no-cache git
-    - git config --global user.email "$GIT_USER_EMAIL"
-    - git config --global user.name "$GIT_USER_NAME"
+    - apt-get update && apt-get install -y git
+    - git config --global user.email "${GIT_USER_EMAIL}"
+    - git config --global user.name "${GIT_USER_NAME}"
+    # Setup SSH if using SSH for Git
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
   script:
-    - VERSION=$(cat version)
-    - git clone $CI_REPOSITORY_URL temp_repo
-    - cd temp_repo
-    - git checkout erlang_server_test || git checkout -b erlang_server_test
-    - rm -rf ./*
-    - cp -r ../generated-erlang/* .
+    - git checkout ${ERLANG_BRANCH} || git checkout -b ${ERLANG_BRANCH}
+    - mkdir -p temp_backup
+    - cp -rv generated-erlang/* temp_backup/
+    - find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'temp_backup' -exec rm -rf {} +
+    - mv temp_backup/* .
+    - rm -rf temp_backup
     - git add .
-    - git commit -m "Update generated Erlang server code from OpenAPI spec erl-${VERSION} [skip ci]"
-    - git tag -a "erl-${VERSION}"
-    - git push origin erlang_server_test
-    - git push origin "erl-${VERSION}"
+    - git commit -m "Update generated Erlang server code from OpenAPI spec erl-${VERSION} [skip ci]" || echo "No changes to commit"
+    - git tag -a "erl-${VERSION}" -m "Release erl-${VERSION}" || echo "Tag already exists"
+    - git push origin ${ERLANG_BRANCH} || echo "Branch is up to date"
+    - git push origin "erl-${VERSION}" || echo "Tag already pushed"
+  variables:
+    GIT_STRATEGY: clone
   only:
-    - main
-  dependencies:
-    - generate-erlang
-    - extract-version
+    - master
 
-push-python-client:
+push_python:
   stage: push
-  <<: *validate-template
+  image: node:18
+  needs:
+    - generate_python
+    - extract_version
   before_script:
-    - apk add --no-cache git
-    - git config --global user.email "$GIT_USER_EMAIL"
-    - git config --global user.name "$GIT_USER_NAME"
+    - apt-get update && apt-get install -y git
+    - git config --global user.email "${GIT_USER_EMAIL}"
+    - git config --global user.name "${GIT_USER_NAME}"
+    # Setup SSH if using SSH for Git
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
   script:
-    - VERSION=$(cat version)
-    - git clone $CI_REPOSITORY_URL temp_repo
-    - cd temp_repo
-    - git checkout python_client_test || git checkout -b python_client_test
-    - rm -rf ./*
-    - cp -r ../generated-python/* .
+    - git checkout ${PYTHON_BRANCH} || git checkout -b ${PYTHON_BRANCH}
+    - mkdir -p temp_backup
+    - cp -rv generated-python/* temp_backup/
+    - find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'temp_backup' -exec rm -rf {} +
+    - mv temp_backup/* .
+    - rm -rf temp_backup
     - git add .
-    - git commit -m "Update generated Python client code from OpenAPI spec py-${VERSION} [skip ci]"
-    - git tag -a "py-${VERSION}"
-    - git push origin python_client_test
-    - git push origin "py-${VERSION}"
+    - git commit -m "Update generated Python client code from OpenAPI spec py-${VERSION} [skip ci]" || echo "No changes to commit"
+    - git tag -a "py-${VERSION}" -m "Release py-${VERSION}" || echo "Tag already exists"
+    - git push origin ${PYTHON_BRANCH} || echo "Branch is up to date"
+    - git push origin "py-${VERSION}" || echo "Tag already pushed"
+  variables:
+    GIT_STRATEGY: clone
   only:
-    - main
-  dependencies:
-    - generate-python
-    - extract-version 
+    - master 

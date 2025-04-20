@@ -1,6 +1,6 @@
 -module({{packageName}}_router).
 
--export([get_paths/2]).
+-export([get_paths/3]).
 
 -type method() :: binary().
 -type operations() :: #{method() => {{packageName}}_api:operation_id()}.
@@ -8,8 +8,12 @@
 
 -export_type([init_opts/0]).
 
--spec get_paths(LogicHandler :: module(), ServiceRoutes :: cowboy_router:routes()) -> cowboy_router:routes().
-get_paths(LogicHandler, ServiceRoutes) ->
+-spec get_paths(
+        LogicHandler :: module(),
+        ServiceRoutes :: cowboy_router:routes(),
+        SwaggerHandler :: openapi_swagger:swagger_json_handler()
+    ) -> cowboy_router:routes().
+get_paths(LogicHandler, ServiceRoutes, SwaggerHandler) ->
     PreparedPaths = maps:fold(
                       fun(Path, #{operations := Operations, handler := Handler}, Acc) ->
                               [{Path, Handler, Operations} | Acc]
@@ -20,7 +24,7 @@ get_paths(LogicHandler, ServiceRoutes) ->
     RootServicePaths = lists:flatten([R || {_, R} <- RootServiceRoutes]),
     CompiledPaths = [{P, H, {O, LogicHandler}} || {P, H, O} <- PreparedPaths],
     SwaggerPaths = [
-        {"/api-docs/openapi.json", cowboy_static, {priv_file, {{packageName}}, "{{packageName}}.json"}},
+        {"/api-docs/openapi.json", openapi_swagger, #{swagger_json_handler => SwaggerHandler}},
         {"/api-docs/swagger/", cowboy_static, {priv_file, {{packageName}}, "swagger/index.html"}},
         {"/api-docs/swagger/[...]", cowboy_static, {priv_dir, {{packageName}}, "swagger"}}
     ],

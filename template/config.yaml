@@ -1,0 +1,10 @@
+additionalProperties:
+  artifactId: erlang-generated
+  serializableModel: "true"
+  dateLibrary: java8
+templateDir: erlang-api
+files:
+  swagger.mustache:
+    folder: src
+    templateType: SupportingFiles
+    destinationFilename: openapi_swagger.erl
