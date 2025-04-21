@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   description: >-
     OpenAPI specification for Premargo, a service that handles pre-trade validation and operations.
-  version: 1.0.0
+  version: 0.0.1
   title: Premaro API
   license:
     name: Apache-2.0
