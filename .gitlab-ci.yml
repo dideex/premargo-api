@@ -5,14 +5,25 @@ variables:
   SPEC_FILE: openapi.yaml
   GIT_USER_EMAIL: "gitlab-ci@exante.eu"
   GIT_USER_NAME: "GitLab CI"
-  ERLANG_BRANCH: erlang_server_test
-  PYTHON_BRANCH: python_client_test
+  ERLANG_BRANCH: erlang_server
+  PYTHON_BRANCH: python_client
+  GIT_REPOSITORY: "git@gitlab.exan.tech:erlang/premargo_api.git"
+  MAIN_BRANCH: "master"
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
+    - if: $CI_COMMIT_BRANCH == $MAIN_BRANCH
+      when: always
+    - when: never
 
 stages:
   - validate
   - extract_version
   - generate
   - swagger_ui
+  - push
 
 validate:
   stage: validate
@@ -21,6 +32,8 @@ validate:
     - docker
   script:
     - java -jar /opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar validate -i ${SPEC_FILE}
+  rules:
+    - when: always  # This job runs on every pipeline
 
 extract_version:
   stage: extract_version
@@ -38,6 +51,10 @@ extract_version:
   artifacts:
     reports:
       dotenv: version.env
+  rules:
+    - if: $CI_COMMIT_BRANCH == $MAIN_BRANCH
+      when: always
+    - when: never
 
 generate-erlang:
   stage: generate
@@ -60,6 +77,10 @@ generate-erlang:
       - ${OUTPUT_DIR}
   dependencies:
     - validate
+  rules:
+    - if: $CI_COMMIT_BRANCH == $MAIN_BRANCH
+      when: always
+    - when: never
 
 generate-python:
   stage: generate
@@ -78,7 +99,11 @@ generate-python:
     paths:
       - ${OUTPUT_DIR}
   dependencies:
-    - validate 
+    - validate
+  rules:
+    - if: $CI_COMMIT_BRANCH == $MAIN_BRANCH
+      when: always
+    - when: never
 
 generate_swagger_ui:
   stage: swagger_ui
@@ -98,3 +123,93 @@ generate_swagger_ui:
   artifacts:
     paths:
       - generated-erlang/
+  rules:
+    - if: $CI_COMMIT_BRANCH == $MAIN_BRANCH
+      when: always
+    - when: never
+
+push_erlang:
+  stage: push
+  image: bitnami/git:latest
+  needs:
+    - generate_swagger_ui
+    - extract_version
+  before_script:
+    - |
+      git config --global user.email "${GIT_USER_EMAIL}"
+      git config --global user.name "${GIT_USER_NAME}"
+      if [ ! -f "$SSH_PRIVATE_KEY" ]; then echo "SSH_PRIVATE_KEY file not found at: $SSH_PRIVATE_KEY"; exit 1; fi
+      echo "Reading SSH key from file: $SSH_PRIVATE_KEY"
+      eval $(ssh-agent -s)
+      mkdir -p ~/.ssh
+      chmod 700 ~/.ssh
+      base64 -d "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+      chmod 600 ~/.ssh/id_rsa
+      ssh-add ~/.ssh/id_rsa 2>&1 || { echo "Failed to add SSH key"; exit 1; }
+      ssh-add -l || echo "No keys found in ssh-agent"
+      ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+      chmod 644 ~/.ssh/known_hosts
+      # Change remote URL from HTTPS to SSH
+      git remote set-url origin "${GIT_REPOSITORY}"
+  script:
+    - git checkout ${ERLANG_BRANCH} || git checkout -b ${ERLANG_BRANCH}
+    - mkdir -p temp_backup
+    - cp -rv generated-erlang/* temp_backup/
+    - find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'temp_backup' -exec rm -rf {} +
+    - mv temp_backup/* .
+    - rm -rf temp_backup
+    - git add .
+    - git commit -m "Update generated Erlang server code from OpenAPI spec erl-${VERSION}" || echo "No changes to commit"
+    - git tag -a "erl-${VERSION}" -m "Release erl-${VERSION}" || echo "Tag already exists"
+    - git push origin ${ERLANG_BRANCH} || echo "Branch is up to date"
+    - git push origin "erl-${VERSION}" || echo "Tag already pushed"
+  variables:
+    GIT_STRATEGY: clone
+  rules:
+    - if: $CI_COMMIT_BRANCH == $MAIN_BRANCH
+      when: always
+    - when: never
+
+push_python:
+  stage: push
+  tags:
+    - docker
+  image: bitnami/git:latest
+  needs:
+    - generate-python
+    - extract_version
+  before_script:
+    - |
+      git config --global user.email "${GIT_USER_EMAIL}"
+      git config --global user.name "${GIT_USER_NAME}"
+      if [ ! -f "$SSH_PRIVATE_KEY" ]; then echo "SSH_PRIVATE_KEY file not found at: $SSH_PRIVATE_KEY"; exit 1; fi
+      echo "Reading SSH key from file: $SSH_PRIVATE_KEY"
+      eval $(ssh-agent -s)
+      mkdir -p ~/.ssh
+      chmod 700 ~/.ssh
+      base64 -d "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+      chmod 600 ~/.ssh/id_rsa
+      ssh-add ~/.ssh/id_rsa 2>&1 || { echo "Failed to add SSH key"; exit 1; }
+      ssh-add -l || echo "No keys found in ssh-agent"
+      ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+      chmod 644 ~/.ssh/known_hosts
+      # Change remote URL from HTTPS to SSH
+      git remote set-url origin "${GIT_REPOSITORY}"
+  script:
+    - git checkout ${PYTHON_BRANCH} || git checkout -b ${PYTHON_BRANCH}
+    - mkdir -p temp_backup
+    - cp -rv generated-python/* temp_backup/
+    - find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'temp_backup' -exec rm -rf {} +
+    - mv temp_backup/* .
+    - rm -rf temp_backup
+    - git add .
+    - git commit -m "Update generated Python client code from OpenAPI spec py-${VERSION}" || echo "No changes to commit"
+    - git tag -a "py-${VERSION}" -m "Release py-${VERSION}" || echo "Tag already exists"
+    - git push origin ${PYTHON_BRANCH} || echo "Branch is up to date"
+    - git push origin "py-${VERSION}" || echo "Tag already pushed"
+  variables:
+    GIT_STRATEGY: clone
+  rules:
+    - if: $CI_COMMIT_BRANCH == $MAIN_BRANCH
+      when: always
+    - when: never
