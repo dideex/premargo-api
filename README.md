@@ -76,11 +76,11 @@ with openapi_client.ApiClient(configuration) as api_client:
 
     try:
         # Estimate trade margin for one order
-        api_response = api_instance.preorder_account_id_get(account_id, symbol_id, quantity, currency=currency, price=price, show_margin_structure=show_margin_structure)
-        print("The response of PreorderApi->preorder_account_id_get:\n")
+        api_response = api_instance.preorder_check_get(account_id, symbol_id, quantity, currency=currency, price=price, show_margin_structure=show_margin_structure)
+        print("The response of PreorderApi->preorder_check_get:\n")
         pprint(api_response)
     except ApiException as e:
-        print("Exception when calling PreorderApi->preorder_account_id_get: %s\n" % e)
+        print("Exception when calling PreorderApi->preorder_check_get: %s\n" % e)
 
 ```
 
@@ -90,16 +90,16 @@ All URIs are relative to *http://localhost/api/v2.0*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*PreorderApi* | [**preorder_account_id_get**](docs/PreorderApi.md#preorder_account_id_get) | **GET** /preorder/{account_id} | Estimate trade margin for one order
-*PreorderApi* | [**preorder_account_id_post**](docs/PreorderApi.md#preorder_account_id_post) | **POST** /preorder/{account_id} | Estimate trade margin for list of orders
+*PreorderApi* | [**preorder_check_get**](docs/PreorderApi.md#preorder_check_get) | **GET** /preorder/{account_id} | Estimate trade margin for one order
+*PreorderApi* | [**preorder_check_post**](docs/PreorderApi.md#preorder_check_post) | **POST** /preorder/{account_id} | Estimate trade margin for list of orders
 
 
 ## Documentation For Models
 
  - [MarginStructure](docs/MarginStructure.md)
  - [MarginStructureComponent](docs/MarginStructureComponent.md)
- - [PreorderAccountIdPostRequest](docs/PreorderAccountIdPostRequest.md)
- - [PreorderAccountIdPostRequestOrdersDataInner](docs/PreorderAccountIdPostRequestOrdersDataInner.md)
+ - [PreorderCheckPostRequest](docs/PreorderCheckPostRequest.md)
+ - [PreorderCheckPostRequestOrdersDataInner](docs/PreorderCheckPostRequestOrdersDataInner.md)
  - [PreorderCheckResponse](docs/PreorderCheckResponse.md)
 
 

@@ -14,10 +14,10 @@
 
 import unittest
 
-from openapi_client.models.preorder_account_id_post_request_orders_data_inner import PreorderAccountIdPostRequestOrdersDataInner
+from openapi_client.models.preorder_check_post_request_orders_data_inner import PreorderCheckPostRequestOrdersDataInner
 
-class TestPreorderAccountIdPostRequestOrdersDataInner(unittest.TestCase):
-    """PreorderAccountIdPostRequestOrdersDataInner unit test stubs"""
+class TestPreorderCheckPostRequestOrdersDataInner(unittest.TestCase):
+    """PreorderCheckPostRequestOrdersDataInner unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,29 +25,29 @@ class TestPreorderAccountIdPostRequestOrdersDataInner(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> PreorderAccountIdPostRequestOrdersDataInner:
-        """Test PreorderAccountIdPostRequestOrdersDataInner
+    def make_instance(self, include_optional) -> PreorderCheckPostRequestOrdersDataInner:
+        """Test PreorderCheckPostRequestOrdersDataInner
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `PreorderAccountIdPostRequestOrdersDataInner`
+        # uncomment below to create an instance of `PreorderCheckPostRequestOrdersDataInner`
         """
-        model = PreorderAccountIdPostRequestOrdersDataInner()
+        model = PreorderCheckPostRequestOrdersDataInner()
         if include_optional:
-            return PreorderAccountIdPostRequestOrdersDataInner(
+            return PreorderCheckPostRequestOrdersDataInner(
                 price = 45.31,
                 quantity = 89.25,
                 symbol_id = 'EUR/USD.EXANTE'
             )
         else:
-            return PreorderAccountIdPostRequestOrdersDataInner(
+            return PreorderCheckPostRequestOrdersDataInner(
                 quantity = 89.25,
                 symbol_id = 'EUR/USD.EXANTE',
         )
         """
 
-    def testPreorderAccountIdPostRequestOrdersDataInner(self):
-        """Test PreorderAccountIdPostRequestOrdersDataInner"""
+    def testPreorderCheckPostRequestOrdersDataInner(self):
+        """Test PreorderCheckPostRequestOrdersDataInner"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

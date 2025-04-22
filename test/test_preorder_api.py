@@ -26,15 +26,15 @@ class TestPreorderApi(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_preorder_account_id_get(self) -> None:
-        """Test case for preorder_account_id_get
+    def test_preorder_check_get(self) -> None:
+        """Test case for preorder_check_get
 
         Estimate trade margin for one order
         """
         pass
 
-    def test_preorder_account_id_post(self) -> None:
-        """Test case for preorder_account_id_post
+    def test_preorder_check_post(self) -> None:
+        """Test case for preorder_check_post
 
         Estimate trade margin for list of orders
         """

@@ -14,10 +14,10 @@
 
 import unittest
 
-from openapi_client.models.preorder_account_id_post_request import PreorderAccountIdPostRequest
+from openapi_client.models.preorder_check_post_request import PreorderCheckPostRequest
 
-class TestPreorderAccountIdPostRequest(unittest.TestCase):
-    """PreorderAccountIdPostRequest unit test stubs"""
+class TestPreorderCheckPostRequest(unittest.TestCase):
+    """PreorderCheckPostRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -25,19 +25,19 @@ class TestPreorderAccountIdPostRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> PreorderAccountIdPostRequest:
-        """Test PreorderAccountIdPostRequest
+    def make_instance(self, include_optional) -> PreorderCheckPostRequest:
+        """Test PreorderCheckPostRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `PreorderAccountIdPostRequest`
+        # uncomment below to create an instance of `PreorderCheckPostRequest`
         """
-        model = PreorderAccountIdPostRequest()
+        model = PreorderCheckPostRequest()
         if include_optional:
-            return PreorderAccountIdPostRequest(
+            return PreorderCheckPostRequest(
                 currency = 'EUR',
                 orders_data = [
-                    openapi_client.models._preorder__account_id__post_request_orders_data_inner._preorder__account_id__post_request_ordersData_inner(
+                    openapi_client.models.preorder_check_post_request_orders_data_inner.preorder_check_post_request_ordersData_inner(
                         price = 45.31, 
                         quantity = 89.25, 
                         symbol_id = 'EUR/USD.EXANTE', )
@@ -45,9 +45,9 @@ class TestPreorderAccountIdPostRequest(unittest.TestCase):
                 show_margin_structure = True
             )
         else:
-            return PreorderAccountIdPostRequest(
+            return PreorderCheckPostRequest(
                 orders_data = [
-                    openapi_client.models._preorder__account_id__post_request_orders_data_inner._preorder__account_id__post_request_ordersData_inner(
+                    openapi_client.models.preorder_check_post_request_orders_data_inner.preorder_check_post_request_ordersData_inner(
                         price = 45.31, 
                         quantity = 89.25, 
                         symbol_id = 'EUR/USD.EXANTE', )
@@ -55,8 +55,8 @@ class TestPreorderAccountIdPostRequest(unittest.TestCase):
         )
         """
 
-    def testPreorderAccountIdPostRequest(self):
-        """Test PreorderAccountIdPostRequest"""
+    def testPreorderCheckPostRequest(self):
+        """Test PreorderCheckPostRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

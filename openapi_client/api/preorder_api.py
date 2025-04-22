@@ -19,7 +19,7 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictBool, StrictFloat, StrictInt, StrictStr
 from typing import Optional, Union
 from typing_extensions import Annotated
-from openapi_client.models.preorder_account_id_post_request import PreorderAccountIdPostRequest
+from openapi_client.models.preorder_check_post_request import PreorderCheckPostRequest
 from openapi_client.models.preorder_check_response import PreorderCheckResponse
 
 from openapi_client.api_client import ApiClient, RequestSerialized
@@ -41,7 +41,7 @@ class PreorderApi:
 
 
     @validate_call
-    def preorder_account_id_get(
+    def preorder_check_get(
         self,
         account_id: Annotated[StrictStr, Field(description="Account Id")],
         symbol_id: StrictStr,
@@ -99,7 +99,7 @@ class PreorderApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._preorder_account_id_get_serialize(
+        _param = self._preorder_check_get_serialize(
             account_id=account_id,
             symbol_id=symbol_id,
             quantity=quantity,
@@ -129,7 +129,7 @@ class PreorderApi:
 
 
     @validate_call
-    def preorder_account_id_get_with_http_info(
+    def preorder_check_get_with_http_info(
         self,
         account_id: Annotated[StrictStr, Field(description="Account Id")],
         symbol_id: StrictStr,
@@ -187,7 +187,7 @@ class PreorderApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._preorder_account_id_get_serialize(
+        _param = self._preorder_check_get_serialize(
             account_id=account_id,
             symbol_id=symbol_id,
             quantity=quantity,
@@ -217,7 +217,7 @@ class PreorderApi:
 
 
     @validate_call
-    def preorder_account_id_get_without_preload_content(
+    def preorder_check_get_without_preload_content(
         self,
         account_id: Annotated[StrictStr, Field(description="Account Id")],
         symbol_id: StrictStr,
@@ -275,7 +275,7 @@ class PreorderApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._preorder_account_id_get_serialize(
+        _param = self._preorder_check_get_serialize(
             account_id=account_id,
             symbol_id=symbol_id,
             quantity=quantity,
@@ -300,7 +300,7 @@ class PreorderApi:
         return response_data.response
 
 
-    def _preorder_account_id_get_serialize(
+    def _preorder_check_get_serialize(
         self,
         account_id,
         symbol_id,
@@ -389,10 +389,10 @@ class PreorderApi:
 
 
     @validate_call
-    def preorder_account_id_post(
+    def preorder_check_post(
         self,
         account_id: Annotated[StrictStr, Field(description="Account Id")],
-        preorder_account_id_post_request: PreorderAccountIdPostRequest,
+        preorder_check_post_request: PreorderCheckPostRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -411,8 +411,8 @@ class PreorderApi:
 
         :param account_id: Account Id (required)
         :type account_id: str
-        :param preorder_account_id_post_request: (required)
-        :type preorder_account_id_post_request: PreorderAccountIdPostRequest
+        :param preorder_check_post_request: (required)
+        :type preorder_check_post_request: PreorderCheckPostRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -435,9 +435,9 @@ class PreorderApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._preorder_account_id_post_serialize(
+        _param = self._preorder_check_post_serialize(
             account_id=account_id,
-            preorder_account_id_post_request=preorder_account_id_post_request,
+            preorder_check_post_request=preorder_check_post_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -461,10 +461,10 @@ class PreorderApi:
 
 
     @validate_call
-    def preorder_account_id_post_with_http_info(
+    def preorder_check_post_with_http_info(
         self,
         account_id: Annotated[StrictStr, Field(description="Account Id")],
-        preorder_account_id_post_request: PreorderAccountIdPostRequest,
+        preorder_check_post_request: PreorderCheckPostRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -483,8 +483,8 @@ class PreorderApi:
 
         :param account_id: Account Id (required)
         :type account_id: str
-        :param preorder_account_id_post_request: (required)
-        :type preorder_account_id_post_request: PreorderAccountIdPostRequest
+        :param preorder_check_post_request: (required)
+        :type preorder_check_post_request: PreorderCheckPostRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -507,9 +507,9 @@ class PreorderApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._preorder_account_id_post_serialize(
+        _param = self._preorder_check_post_serialize(
             account_id=account_id,
-            preorder_account_id_post_request=preorder_account_id_post_request,
+            preorder_check_post_request=preorder_check_post_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -533,10 +533,10 @@ class PreorderApi:
 
 
     @validate_call
-    def preorder_account_id_post_without_preload_content(
+    def preorder_check_post_without_preload_content(
         self,
         account_id: Annotated[StrictStr, Field(description="Account Id")],
-        preorder_account_id_post_request: PreorderAccountIdPostRequest,
+        preorder_check_post_request: PreorderCheckPostRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -555,8 +555,8 @@ class PreorderApi:
 
         :param account_id: Account Id (required)
         :type account_id: str
-        :param preorder_account_id_post_request: (required)
-        :type preorder_account_id_post_request: PreorderAccountIdPostRequest
+        :param preorder_check_post_request: (required)
+        :type preorder_check_post_request: PreorderCheckPostRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -579,9 +579,9 @@ class PreorderApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._preorder_account_id_post_serialize(
+        _param = self._preorder_check_post_serialize(
             account_id=account_id,
-            preorder_account_id_post_request=preorder_account_id_post_request,
+            preorder_check_post_request=preorder_check_post_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -600,10 +600,10 @@ class PreorderApi:
         return response_data.response
 
 
-    def _preorder_account_id_post_serialize(
+    def _preorder_check_post_serialize(
         self,
         account_id,
-        preorder_account_id_post_request,
+        preorder_check_post_request,
         _request_auth,
         _content_type,
         _headers,
@@ -631,8 +631,8 @@ class PreorderApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if preorder_account_id_post_request is not None:
-            _body_params = preorder_account_id_post_request
+        if preorder_check_post_request is not None:
+            _body_params = preorder_check_post_request
 
 
         # set the HTTP header `Accept`

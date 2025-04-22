@@ -4,12 +4,12 @@ All URIs are relative to *http://localhost/api/v2.0*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**preorder_account_id_get**](PreorderApi.md#preorder_account_id_get) | **GET** /preorder/{account_id} | Estimate trade margin for one order
-[**preorder_account_id_post**](PreorderApi.md#preorder_account_id_post) | **POST** /preorder/{account_id} | Estimate trade margin for list of orders
+[**preorder_check_get**](PreorderApi.md#preorder_check_get) | **GET** /preorder/{account_id} | Estimate trade margin for one order
+[**preorder_check_post**](PreorderApi.md#preorder_check_post) | **POST** /preorder/{account_id} | Estimate trade margin for list of orders
 
 
-# **preorder_account_id_get**
-> PreorderCheckResponse preorder_account_id_get(account_id, symbol_id, quantity, currency=currency, price=price, show_margin_structure=show_margin_structure)
+# **preorder_check_get**
+> PreorderCheckResponse preorder_check_get(account_id, symbol_id, quantity, currency=currency, price=price, show_margin_structure=show_margin_structure)
 
 Estimate trade margin for one order
 
@@ -42,11 +42,11 @@ with openapi_client.ApiClient(configuration) as api_client:
 
     try:
         # Estimate trade margin for one order
-        api_response = api_instance.preorder_account_id_get(account_id, symbol_id, quantity, currency=currency, price=price, show_margin_structure=show_margin_structure)
-        print("The response of PreorderApi->preorder_account_id_get:\n")
+        api_response = api_instance.preorder_check_get(account_id, symbol_id, quantity, currency=currency, price=price, show_margin_structure=show_margin_structure)
+        print("The response of PreorderApi->preorder_check_get:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling PreorderApi->preorder_account_id_get: %s\n" % e)
+        print("Exception when calling PreorderApi->preorder_check_get: %s\n" % e)
 ```
 
 
@@ -86,8 +86,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **preorder_account_id_post**
-> PreorderCheckResponse preorder_account_id_post(account_id, preorder_account_id_post_request)
+# **preorder_check_post**
+> PreorderCheckResponse preorder_check_post(account_id, preorder_check_post_request)
 
 Estimate trade margin for list of orders
 
@@ -96,7 +96,7 @@ Estimate trade margin for list of orders
 
 ```python
 import openapi_client
-from openapi_client.models.preorder_account_id_post_request import PreorderAccountIdPostRequest
+from openapi_client.models.preorder_check_post_request import PreorderCheckPostRequest
 from openapi_client.models.preorder_check_response import PreorderCheckResponse
 from openapi_client.rest import ApiException
 from pprint import pprint
@@ -113,15 +113,15 @@ with openapi_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = openapi_client.PreorderApi(api_client)
     account_id = 'FBB1234.001' # str | Account Id (default to 'FBB1234.001')
-    preorder_account_id_post_request = openapi_client.PreorderAccountIdPostRequest() # PreorderAccountIdPostRequest | 
+    preorder_check_post_request = openapi_client.PreorderCheckPostRequest() # PreorderCheckPostRequest | 
 
     try:
         # Estimate trade margin for list of orders
-        api_response = api_instance.preorder_account_id_post(account_id, preorder_account_id_post_request)
-        print("The response of PreorderApi->preorder_account_id_post:\n")
+        api_response = api_instance.preorder_check_post(account_id, preorder_check_post_request)
+        print("The response of PreorderApi->preorder_check_post:\n")
         pprint(api_response)
     except Exception as e:
-        print("Exception when calling PreorderApi->preorder_account_id_post: %s\n" % e)
+        print("Exception when calling PreorderApi->preorder_check_post: %s\n" % e)
 ```
 
 
@@ -132,7 +132,7 @@ with openapi_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **account_id** | **str**| Account Id | [default to &#39;FBB1234.001&#39;]
- **preorder_account_id_post_request** | [**PreorderAccountIdPostRequest**](PreorderAccountIdPostRequest.md)|  | 
+ **preorder_check_post_request** | [**PreorderCheckPostRequest**](PreorderCheckPostRequest.md)|  | 
 
 ### Return type
 

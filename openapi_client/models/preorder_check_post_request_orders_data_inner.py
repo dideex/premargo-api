@@ -17,20 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from openapi_client.models.preorder_account_id_post_request_orders_data_inner import PreorderAccountIdPostRequestOrdersDataInner
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing import Optional, Set
 from typing_extensions import Self
 
-class PreorderAccountIdPostRequest(BaseModel):
+class PreorderCheckPostRequestOrdersDataInner(BaseModel):
     """
-    PreorderAccountIdPostRequest
+    PreorderCheckPostRequestOrdersDataInner
     """ # noqa: E501
-    currency: Optional[StrictStr] = Field(default='EUR', description="Currency code")
-    orders_data: List[PreorderAccountIdPostRequestOrdersDataInner] = Field(alias="ordersData")
-    show_margin_structure: Optional[StrictBool] = Field(default=False, alias="showMarginStructure")
-    __properties: ClassVar[List[str]] = ["currency", "ordersData", "showMarginStructure"]
+    price: Optional[Union[StrictFloat, StrictInt]] = None
+    quantity: Union[StrictFloat, StrictInt]
+    symbol_id: StrictStr = Field(alias="symbolId")
+    __properties: ClassVar[List[str]] = ["price", "quantity", "symbolId"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +49,7 @@ class PreorderAccountIdPostRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of PreorderAccountIdPostRequest from a JSON string"""
+        """Create an instance of PreorderCheckPostRequestOrdersDataInner from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,18 +70,11 @@ class PreorderAccountIdPostRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in orders_data (list)
-        _items = []
-        if self.orders_data:
-            for _item_orders_data in self.orders_data:
-                if _item_orders_data:
-                    _items.append(_item_orders_data.to_dict())
-            _dict['ordersData'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of PreorderAccountIdPostRequest from a dict"""
+        """Create an instance of PreorderCheckPostRequestOrdersDataInner from a dict"""
         if obj is None:
             return None
 
@@ -90,9 +82,9 @@ class PreorderAccountIdPostRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "currency": obj.get("currency") if obj.get("currency") is not None else 'EUR',
-            "ordersData": [PreorderAccountIdPostRequestOrdersDataInner.from_dict(_item) for _item in obj["ordersData"]] if obj.get("ordersData") is not None else None,
-            "showMarginStructure": obj.get("showMarginStructure") if obj.get("showMarginStructure") is not None else False
+            "price": obj.get("price"),
+            "quantity": obj.get("quantity"),
+            "symbolId": obj.get("symbolId")
         })
         return _obj
 
