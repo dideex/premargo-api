@@ -32,7 +32,7 @@ Use `erlang-server` with `rebar3`
 
 ```erlang
 {deps, [
-    {openapi, {git, "https://github.com/dideex/premargo-api", {tag, "erl-1.0.5b"}}}
+    {openapi, {git, "https://gitlab.exan.tech/erlang/premargo_api", {tag, "erl-1.0.5b"}}}
 ]}.
 ```
 

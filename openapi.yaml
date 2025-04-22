@@ -18,6 +18,7 @@ paths:
       tags:
         - preorder
       summary: Estimate trade margin for one order
+      operationId: preorder_check_get
       parameters:
         - in: path
           name: account_id
@@ -76,6 +77,7 @@ paths:
       tags:
         - preorder
       summary: Estimate trade margin for list of orders
+      operationId: preorder_check_post
       parameters:
         - in: path
           name: account_id

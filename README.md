@@ -52,9 +52,13 @@ To use this pipeline:
 2. **Important**: If you want to see changes in the generated files, you must update the `info.version` field in `schema.yaml`. The pipeline uses this version to determine whether to regenerate code.
 3. Push changes to the repository
 4. The pipeline will automatically validate, generate code, and push to the appropriate branches
-5. Access the generated code from the respective branches:
+5. Access the generated code from the respective branches and tags:
    - [Erlang Server Implementation](https://gitlab.exan.tech/erlang/premargo_api/-/tree/erlang_server)
+     - Tags follow the format: `erl-{version}` (e.g., `erl-2.0.0`)
    - [Python Client SDK](https://gitlab.exan.tech/erlang/premargo_api/-/tree/python_client)
+     - Tags follow the format: `py-{version}` (e.g., `py-2.0.0`)
+
+Note: The version number in tags is automatically extracted from the `info.version` field in your OpenAPI specification file (`openapi.yaml`).
 
 ## Erlang Server Configuration
 
@@ -72,6 +76,19 @@ Where `Params` is a map with the following options:
 - `protocol_opts`: Protocol options for Cowboy (the HTTP server)
 - `service_routes`: Additional routes to add to the server
 - `logic_handler`: Module implementing the business logic (defaults to `{packageName}_logic_handler`)
+
+**Important**: When implementing your own `logic_handler`, you must ensure that each endpoint in your OpenAPI specification has a unique `operationId` field. The `logic_handler` uses these `operationId`s to match and process requests. For example:
+
+```yaml
+paths:
+  /pets:
+    get:
+      operationId: listPets  # This ID will be used in logic_handler
+      ...
+    post:
+      operationId: createPet  # This ID will be used in logic_handler
+      ...
+```
 
 Example usage:
 
