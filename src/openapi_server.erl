@@ -1,6 +1,6 @@
 -module(openapi_server).
 -moduledoc """
-There is a new description.
+API for estimating trade margins for orders
 """.
 
 -define(DEFAULT_LOGIC_HANDLER, openapi_logic_handler).

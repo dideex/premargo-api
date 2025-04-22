@@ -17,18 +17,12 @@ and `validate_response/4` respectively.
 -ignore_xref([format_error_description/4]).
 
 -type class() ::
-    'pet'.
+    'preorder'.
 
 
 -type operation_id() ::
-    'addPet' | %% Add a new pet to the store
-    'deletePet' | %% Deletes a pet
-    'findPetsByStatus' | %% Finds Pets by status
-    'findPetsByTags' | %% Finds Pets by tags
-    'getPetById' | %% Find pet by ID
-    'updatePet' | %% Update an existing pet
-    'updatePetWithForm' | %% Updates a pet in the store with form data
-    'uploadFile' | %% uploads an image
+    '' | %% Estimate trade margin for one order
+    '' | %% Estimate trade margin for list of orders
     {error, unknown_operation}.
 
 -type request_param() :: atom().
@@ -110,188 +104,104 @@ for the `OperationID` operation.
         Body :: jesse:json_term(),
         ValidatorState :: jesse_state:state()) ->
     ok | {ok, term()} | [ok | {ok, term()}] | no_return().
-validate_response('addPet', 200, Body, ValidatorState) ->
-    validate_response_body('Pet', 'Pet', Body, ValidatorState);
-validate_response('addPet', 404, Body, ValidatorState) ->
+validate_response('', 200, Body, ValidatorState) ->
+    validate_response_body('PreorderCheckResponse', 'PreorderCheckResponse', Body, ValidatorState);
+validate_response('', 400, Body, ValidatorState) ->
     validate_response_body('', '', Body, ValidatorState);
-validate_response('addPet', 405, Body, ValidatorState) ->
+validate_response('', 404, Body, ValidatorState) ->
     validate_response_body('', '', Body, ValidatorState);
-validate_response('deletePet', 400, Body, ValidatorState) ->
+validate_response('', 200, Body, ValidatorState) ->
+    validate_response_body('PreorderCheckResponse', 'PreorderCheckResponse', Body, ValidatorState);
+validate_response('', 400, Body, ValidatorState) ->
     validate_response_body('', '', Body, ValidatorState);
-validate_response('findPetsByStatus', 200, Body, ValidatorState) ->
-    validate_response_body('list', 'Pet', Body, ValidatorState);
-validate_response('findPetsByStatus', 400, Body, ValidatorState) ->
+validate_response('', 404, Body, ValidatorState) ->
     validate_response_body('', '', Body, ValidatorState);
-validate_response('findPetsByTags', 200, Body, ValidatorState) ->
-    validate_response_body('list', 'Pet', Body, ValidatorState);
-validate_response('findPetsByTags', 400, Body, ValidatorState) ->
-    validate_response_body('', '', Body, ValidatorState);
-validate_response('getPetById', 200, Body, ValidatorState) ->
-    validate_response_body('Pet', 'Pet', Body, ValidatorState);
-validate_response('getPetById', 400, Body, ValidatorState) ->
-    validate_response_body('', '', Body, ValidatorState);
-validate_response('getPetById', 404, Body, ValidatorState) ->
-    validate_response_body('', '', Body, ValidatorState);
-validate_response('updatePet', 200, Body, ValidatorState) ->
-    validate_response_body('Pet', 'Pet', Body, ValidatorState);
-validate_response('updatePet', 400, Body, ValidatorState) ->
-    validate_response_body('', '', Body, ValidatorState);
-validate_response('updatePet', 404, Body, ValidatorState) ->
-    validate_response_body('', '', Body, ValidatorState);
-validate_response('updatePet', 405, Body, ValidatorState) ->
-    validate_response_body('', '', Body, ValidatorState);
-validate_response('updatePetWithForm', 405, Body, ValidatorState) ->
-    validate_response_body('', '', Body, ValidatorState);
-validate_response('uploadFile', 200, Body, ValidatorState) ->
-    validate_response_body('ApiResponse', 'ApiResponse', Body, ValidatorState);
 validate_response(_OperationID, _Code, _Body, _ValidatorState) ->
     ok.
 
 %%%
 -spec request_params(OperationID :: operation_id()) -> [Param :: request_param()].
-request_params('addPet') ->
+request_params('') ->
     [
-        'Pet'
+        'account_id',
+        'symbolId',
+        'quantity',
+        'currency',
+        'price',
+        'showMarginStructure'
     ];
-request_params('deletePet') ->
+request_params('') ->
     [
-        'petId',
-        'api_key'
-    ];
-request_params('findPetsByStatus') ->
-    [
-        'status'
-    ];
-request_params('findPetsByTags') ->
-    [
-        'tags'
-    ];
-request_params('getPetById') ->
-    [
-        'petId'
-    ];
-request_params('updatePet') ->
-    [
-        'Pet'
-    ];
-request_params('updatePetWithForm') ->
-    [
-        'petId',
-        'name',
-        'status'
-    ];
-request_params('uploadFile') ->
-    [
-        'petId',
-        'additionalMetadata',
-        'file'
+        'account_id',
+        '_preorder__account_id__post_request'
     ];
 request_params(_) ->
     error(unknown_operation).
 
 -spec request_param_info(OperationID :: operation_id(), Name :: request_param()) ->
     #{source => qs_val | binding | header | body, rules => [rule()]}.
-request_param_info('addPet', 'Pet') ->
-    #{
-        source => body,
-        rules => [
-            {schema, object, <<"#/components/schemas/Pet">>},
-            required
-        ]
-    };
-request_param_info('deletePet', 'petId') ->
+request_param_info('', 'account_id') ->
     #{
         source => binding,
         rules => [
-            {type, integer},
+            {type, binary},
             required
         ]
     };
-request_param_info('deletePet', 'api_key') ->
-    #{
-        source => header,
-        rules => [
-            {type, binary},
-            not_required
-        ]
-    };
-request_param_info('findPetsByStatus', 'status') ->
+request_param_info('', 'symbolId') ->
     #{
         source => qs_val,
         rules => [
-            {enum, ['available', 'pending', 'sold'] },
+            {type, binary},
             required
         ]
     };
-request_param_info('findPetsByTags', 'tags') ->
+request_param_info('', 'quantity') ->
     #{
         source => qs_val,
         rules => [
+            {type, float},
             required
         ]
     };
-request_param_info('getPetById', 'petId') ->
+request_param_info('', 'currency') ->
+    #{
+        source => qs_val,
+        rules => [
+            {type, binary},
+            not_required
+        ]
+    };
+request_param_info('', 'price') ->
+    #{
+        source => qs_val,
+        rules => [
+            {type, float},
+            not_required
+        ]
+    };
+request_param_info('', 'showMarginStructure') ->
+    #{
+        source => qs_val,
+        rules => [
+            {type, boolean},
+            not_required
+        ]
+    };
+request_param_info('', 'account_id') ->
     #{
         source => binding,
         rules => [
-            {type, integer},
+            {type, binary},
             required
         ]
     };
-request_param_info('updatePet', 'Pet') ->
+request_param_info('', '_preorder__account_id__post_request') ->
     #{
         source => body,
         rules => [
-            {schema, object, <<"#/components/schemas/Pet">>},
+            {schema, object, <<"#/components/schemas/_preorder__account_id__post_request">>},
             required
-        ]
-    };
-request_param_info('updatePetWithForm', 'petId') ->
-    #{
-        source => binding,
-        rules => [
-            {type, integer},
-            required
-        ]
-    };
-request_param_info('updatePetWithForm', 'name') ->
-    #{
-        source => body,
-        rules => [
-            {type, binary},
-            not_required
-        ]
-    };
-request_param_info('updatePetWithForm', 'status') ->
-    #{
-        source => body,
-        rules => [
-            {type, binary},
-            not_required
-        ]
-    };
-request_param_info('uploadFile', 'petId') ->
-    #{
-        source => binding,
-        rules => [
-            {type, integer},
-            required
-        ]
-    };
-request_param_info('uploadFile', 'additionalMetadata') ->
-    #{
-        source => body,
-        rules => [
-            {type, binary},
-            not_required
-        ]
-    };
-request_param_info('uploadFile', 'file') ->
-    #{
-        source => body,
-        rules => [
-            {type, binary},
-            not_required
         ]
     };
 request_param_info(OperationID, Name) ->

@@ -1,11 +1,11 @@
 {application,
  openapi,
  [{description,
-   "There is a new description."},
+   "API for estimating trade margins for orders"},
   {vsn, "1.0.0"},
   {registered, []},
   {applications, [kernel, stdlib, public_key, ssl, inets, ranch, cowboy, jesse]},
   {env, []},
   {modules, []},
-  {licenses, ["Apache-2.0"]},
+  {licenses, []},
   {links, []}]}.

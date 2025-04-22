@@ -60,60 +60,18 @@ merge_paths(FullPaths, OperationID, Method, Handler, Acc) ->
 
 get_operations() ->
     #{ 
-       'addPet' => #{
+       '' => #{
             servers => [],
-            base_path => "",
-            path => "/pet",
-            method => <<"POST">>,
-            handler => 'openapi_pet_handler'
-        },
-       'deletePet' => #{
-            servers => [],
-            base_path => "",
-            path => "/pet/:petId",
-            method => <<"DELETE">>,
-            handler => 'openapi_pet_handler'
-        },
-       'findPetsByStatus' => #{
-            servers => [],
-            base_path => "",
-            path => "/pet/findByStatus",
+            base_path => "/api/v2.0",
+            path => "/preorder/:account_id",
             method => <<"GET">>,
-            handler => 'openapi_pet_handler'
+            handler => 'openapi_preorder_handler'
         },
-       'findPetsByTags' => #{
+       '' => #{
             servers => [],
-            base_path => "",
-            path => "/pet/findByTags",
-            method => <<"GET">>,
-            handler => 'openapi_pet_handler'
-        },
-       'getPetById' => #{
-            servers => [],
-            base_path => "",
-            path => "/pet/:petId",
-            method => <<"GET">>,
-            handler => 'openapi_pet_handler'
-        },
-       'updatePet' => #{
-            servers => [],
-            base_path => "",
-            path => "/pet",
-            method => <<"PUT">>,
-            handler => 'openapi_pet_handler'
-        },
-       'updatePetWithForm' => #{
-            servers => [],
-            base_path => "",
-            path => "/pet/:petId",
+            base_path => "/api/v2.0",
+            path => "/preorder/:account_id",
             method => <<"POST">>,
-            handler => 'openapi_pet_handler'
-        },
-       'uploadFile' => #{
-            servers => [],
-            base_path => "",
-            path => "/pet/:petId/uploadImage",
-            method => <<"POST">>,
-            handler => 'openapi_pet_handler'
+            handler => 'openapi_preorder_handler'
         }
     }.
