@@ -21,8 +21,8 @@ and `validate_response/4` respectively.
 
 
 -type operation_id() ::
-    '' | %% Estimate trade margin for one order
-    '' | %% Estimate trade margin for list of orders
+    'preorder_check_get' | %% Estimate trade margin for one order
+    'preorder_check_post' | %% Estimate trade margin for list of orders
     {error, unknown_operation}.
 
 -type request_param() :: atom().
@@ -104,24 +104,24 @@ for the `OperationID` operation.
         Body :: jesse:json_term(),
         ValidatorState :: jesse_state:state()) ->
     ok | {ok, term()} | [ok | {ok, term()}] | no_return().
-validate_response('', 200, Body, ValidatorState) ->
+validate_response('preorder_check_get', 200, Body, ValidatorState) ->
     validate_response_body('PreorderCheckResponse', 'PreorderCheckResponse', Body, ValidatorState);
-validate_response('', 400, Body, ValidatorState) ->
+validate_response('preorder_check_get', 400, Body, ValidatorState) ->
     validate_response_body('', '', Body, ValidatorState);
-validate_response('', 404, Body, ValidatorState) ->
+validate_response('preorder_check_get', 404, Body, ValidatorState) ->
     validate_response_body('', '', Body, ValidatorState);
-validate_response('', 200, Body, ValidatorState) ->
+validate_response('preorder_check_post', 200, Body, ValidatorState) ->
     validate_response_body('PreorderCheckResponse', 'PreorderCheckResponse', Body, ValidatorState);
-validate_response('', 400, Body, ValidatorState) ->
+validate_response('preorder_check_post', 400, Body, ValidatorState) ->
     validate_response_body('', '', Body, ValidatorState);
-validate_response('', 404, Body, ValidatorState) ->
+validate_response('preorder_check_post', 404, Body, ValidatorState) ->
     validate_response_body('', '', Body, ValidatorState);
 validate_response(_OperationID, _Code, _Body, _ValidatorState) ->
     ok.
 
 %%%
 -spec request_params(OperationID :: operation_id()) -> [Param :: request_param()].
-request_params('') ->
+request_params('preorder_check_get') ->
     [
         'account_id',
         'symbolId',
@@ -130,17 +130,17 @@ request_params('') ->
         'price',
         'showMarginStructure'
     ];
-request_params('') ->
+request_params('preorder_check_post') ->
     [
         'account_id',
-        '_preorder__account_id__post_request'
+        'preorder_check_post_request'
     ];
 request_params(_) ->
     error(unknown_operation).
 
 -spec request_param_info(OperationID :: operation_id(), Name :: request_param()) ->
     #{source => qs_val | binding | header | body, rules => [rule()]}.
-request_param_info('', 'account_id') ->
+request_param_info('preorder_check_get', 'account_id') ->
     #{
         source => binding,
         rules => [
@@ -148,7 +148,7 @@ request_param_info('', 'account_id') ->
             required
         ]
     };
-request_param_info('', 'symbolId') ->
+request_param_info('preorder_check_get', 'symbolId') ->
     #{
         source => qs_val,
         rules => [
@@ -156,7 +156,7 @@ request_param_info('', 'symbolId') ->
             required
         ]
     };
-request_param_info('', 'quantity') ->
+request_param_info('preorder_check_get', 'quantity') ->
     #{
         source => qs_val,
         rules => [
@@ -164,7 +164,7 @@ request_param_info('', 'quantity') ->
             required
         ]
     };
-request_param_info('', 'currency') ->
+request_param_info('preorder_check_get', 'currency') ->
     #{
         source => qs_val,
         rules => [
@@ -172,7 +172,7 @@ request_param_info('', 'currency') ->
             not_required
         ]
     };
-request_param_info('', 'price') ->
+request_param_info('preorder_check_get', 'price') ->
     #{
         source => qs_val,
         rules => [
@@ -180,7 +180,7 @@ request_param_info('', 'price') ->
             not_required
         ]
     };
-request_param_info('', 'showMarginStructure') ->
+request_param_info('preorder_check_get', 'showMarginStructure') ->
     #{
         source => qs_val,
         rules => [
@@ -188,7 +188,7 @@ request_param_info('', 'showMarginStructure') ->
             not_required
         ]
     };
-request_param_info('', 'account_id') ->
+request_param_info('preorder_check_post', 'account_id') ->
     #{
         source => binding,
         rules => [
@@ -196,11 +196,11 @@ request_param_info('', 'account_id') ->
             required
         ]
     };
-request_param_info('', '_preorder__account_id__post_request') ->
+request_param_info('preorder_check_post', 'preorder_check_post_request') ->
     #{
         source => body,
         rules => [
-            {schema, object, <<"#/components/schemas/_preorder__account_id__post_request">>},
+            {schema, object, <<"#/components/schemas/preorder_check_post_request">>},
             required
         ]
     };

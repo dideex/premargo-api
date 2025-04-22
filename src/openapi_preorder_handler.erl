@@ -2,11 +2,11 @@
 -moduledoc """
 Exposes the following operation IDs:
 
-- `GET` to `/preorder/:account_id`, OperationId: ``:
+- `GET` to `/preorder/:account_id`, OperationId: `preorder_check_get`:
 Estimate trade margin for one order.
 
 
-- `POST` to `/preorder/:account_id`, OperationId: ``:
+- `POST` to `/preorder/:account_id`, OperationId: `preorder_check_post`:
 Estimate trade margin for list of orders.
 
 
@@ -31,8 +31,8 @@ Estimate trade margin for list of orders.
 -type class() :: 'preorder'.
 
 -type operation_id() ::
-    '' %% Estimate trade margin for one order
-    | ''. %% Estimate trade margin for list of orders
+    'preorder_check_get' %% Estimate trade margin for one order
+    | 'preorder_check_post'. %% Estimate trade margin for list of orders
 
 
 -record(state,
@@ -71,18 +71,18 @@ forbidden(Req, #state{operation_id = OperationID,
 
 -spec allowed_methods(cowboy_req:req(), state()) ->
     {[binary()], cowboy_req:req(), state()}.
-allowed_methods(Req, #state{operation_id = ''} = State) ->
+allowed_methods(Req, #state{operation_id = 'preorder_check_get'} = State) ->
     {[<<"GET">>], Req, State};
-allowed_methods(Req, #state{operation_id = ''} = State) ->
+allowed_methods(Req, #state{operation_id = 'preorder_check_post'} = State) ->
     {[<<"POST">>], Req, State};
 allowed_methods(Req, State) ->
     {[], Req, State}.
 
 -spec content_types_accepted(cowboy_req:req(), state()) ->
     {[{binary(), atom()}], cowboy_req:req(), state()}.
-content_types_accepted(Req, #state{operation_id = ''} = State) ->
+content_types_accepted(Req, #state{operation_id = 'preorder_check_get'} = State) ->
     {[], Req, State};
-content_types_accepted(Req, #state{operation_id = ''} = State) ->
+content_types_accepted(Req, #state{operation_id = 'preorder_check_post'} = State) ->
     {[
       {<<"application/json">>, handle_type_accepted}
      ], Req, State};
@@ -91,20 +91,20 @@ content_types_accepted(Req, State) ->
 
 -spec valid_content_headers(cowboy_req:req(), state()) ->
     {boolean(), cowboy_req:req(), state()}.
-valid_content_headers(Req, #state{operation_id = ''} = State) ->
+valid_content_headers(Req, #state{operation_id = 'preorder_check_get'} = State) ->
     {true, Req, State};
-valid_content_headers(Req, #state{operation_id = ''} = State) ->
+valid_content_headers(Req, #state{operation_id = 'preorder_check_post'} = State) ->
     {true, Req, State};
 valid_content_headers(Req, State) ->
     {false, Req, State}.
 
 -spec content_types_provided(cowboy_req:req(), state()) ->
     {[{binary(), atom()}], cowboy_req:req(), state()}.
-content_types_provided(Req, #state{operation_id = ''} = State) ->
+content_types_provided(Req, #state{operation_id = 'preorder_check_get'} = State) ->
     {[
       {<<"application/json">>, handle_type_provided}
      ], Req, State};
-content_types_provided(Req, #state{operation_id = ''} = State) ->
+content_types_provided(Req, #state{operation_id = 'preorder_check_post'} = State) ->
     {[
       {<<"application/json">>, handle_type_provided}
      ], Req, State};

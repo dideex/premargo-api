@@ -16,6 +16,7 @@
   "paths" : {
     "/preorder/{account_id}" : {
       "get" : {
+        "operationId" : "preorder_check_get",
         "parameters" : [ {
           "description" : "Account Id",
           "example" : "FBB1234.001",
@@ -104,6 +105,7 @@
         "tags" : [ "preorder" ]
       },
       "post" : {
+        "operationId" : "preorder_check_post",
         "parameters" : [ {
           "description" : "Account Id",
           "example" : "FBB1234.001",
@@ -121,7 +123,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/_preorder__account_id__post_request"
+                "$ref" : "#/components/schemas/preorder_check_post_request"
               }
             }
           },
@@ -411,7 +413,7 @@
         },
         "type" : "object"
       },
-      "_preorder__account_id__post_request_ordersData_inner" : {
+      "preorder_check_post_request_ordersData_inner" : {
         "properties" : {
           "price" : {
             "example" : 45.31,
@@ -431,7 +433,7 @@
         "required" : [ "quantity", "symbolId" ],
         "type" : "object"
       },
-      "_preorder__account_id__post_request" : {
+      "preorder_check_post_request" : {
         "properties" : {
           "currency" : {
             "default" : "EUR",
@@ -440,7 +442,7 @@
           },
           "ordersData" : {
             "items" : {
-              "$ref" : "#/components/schemas/_preorder__account_id__post_request_ordersData_inner"
+              "$ref" : "#/components/schemas/preorder_check_post_request_ordersData_inner"
             },
             "type" : "array"
           },

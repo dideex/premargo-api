@@ -60,14 +60,14 @@ merge_paths(FullPaths, OperationID, Method, Handler, Acc) ->
 
 get_operations() ->
     #{ 
-       '' => #{
+       'preorder_check_get' => #{
             servers => [],
             base_path => "/api/v2.0",
             path => "/preorder/:account_id",
             method => <<"GET">>,
             handler => 'openapi_preorder_handler'
         },
-       '' => #{
+       'preorder_check_post' => #{
             servers => [],
             base_path => "/api/v2.0",
             path => "/preorder/:account_id",
