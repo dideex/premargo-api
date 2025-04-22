@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "openapi_client"
 version = "1.0.0"
-description = "OpenAPI Template"
+description = "Margin API"
 authors = ["OpenAPI Generator Community <team@openapitools.org>"]
-license = "Apache-2.0"
+license = "NoLicense"
 readme = "README.md"
 repository = "https://github.com/GIT_USER_ID/GIT_REPO_ID"
-keywords = ["OpenAPI", "OpenAPI-Generator", "OpenAPI Template"]
+keywords = ["OpenAPI", "OpenAPI-Generator", "Margin API"]
 include = ["openapi_client/py.typed"]
 
 [tool.poetry.dependencies]
