@@ -13,7 +13,7 @@ tags:
     description: Account operations for margin calculations
 
 paths:
-  /preorder/{account_id}
+  /preorder/{account_id}:
     get:
       tags:
         - preorder
