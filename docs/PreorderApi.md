@@ -4,8 +4,8 @@ All URIs are relative to */api*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**preorder_check_get**](PreorderApi.md#preorder_check_get) | **GET** /v2.0/preorder/{account_id} | Estimate trade margin for one order
-[**preorder_check_post**](PreorderApi.md#preorder_check_post) | **POST** /v2.0/preorder/{account_id} | Estimate trade margin for list of orders
+[**preorder_check_get**](PreorderApi.md#preorder_check_get) | **GET** /v1.0/preorder_margin/{account_id} | Estimate trade margin for one order
+[**preorder_check_post**](PreorderApi.md#preorder_check_post) | **POST** /v1.0/preorder_margin/{account_id} | Estimate trade margin for list of orders
 
 
 # **preorder_check_get**

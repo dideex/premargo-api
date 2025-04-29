@@ -90,8 +90,8 @@ All URIs are relative to */api*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*PreorderApi* | [**preorder_check_get**](docs/PreorderApi.md#preorder_check_get) | **GET** /v2.0/preorder/{account_id} | Estimate trade margin for one order
-*PreorderApi* | [**preorder_check_post**](docs/PreorderApi.md#preorder_check_post) | **POST** /v2.0/preorder/{account_id} | Estimate trade margin for list of orders
+*PreorderApi* | [**preorder_check_get**](docs/PreorderApi.md#preorder_check_get) | **GET** /v1.0/preorder_margin/{account_id} | Estimate trade margin for one order
+*PreorderApi* | [**preorder_check_post**](docs/PreorderApi.md#preorder_check_post) | **POST** /v1.0/preorder_margin/{account_id} | Estimate trade margin for list of orders
 
 
 ## Documentation For Models
