@@ -14,7 +14,7 @@
     "name" : "preorder"
   } ],
   "paths" : {
-    "/v2.0/preorder/{account_id}" : {
+    "/v1.0/preorder_margin/{account_id}" : {
       "get" : {
         "operationId" : "preorder_check_get",
         "parameters" : [ {

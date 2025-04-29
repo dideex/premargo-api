@@ -2,11 +2,11 @@
 -moduledoc """
 Exposes the following operation IDs:
 
-- `GET` to `/v2.0/preorder/:account_id`, OperationId: `preorder_check_get`:
+- `GET` to `/v1.0/preorder_margin/:account_id`, OperationId: `preorder_check_get`:
 Estimate trade margin for one order.
 
 
-- `POST` to `/v2.0/preorder/:account_id`, OperationId: `preorder_check_post`:
+- `POST` to `/v1.0/preorder_margin/:account_id`, OperationId: `preorder_check_post`:
 Estimate trade margin for list of orders.
 
 

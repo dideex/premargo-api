@@ -63,14 +63,14 @@ get_operations() ->
        'preorder_check_get' => #{
             servers => [],
             base_path => "/api",
-            path => "/v2.0/preorder/:account_id",
+            path => "/v1.0/preorder_margin/:account_id",
             method => <<"GET">>,
             handler => 'openapi_preorder_handler'
         },
        'preorder_check_post' => #{
             servers => [],
             base_path => "/api",
-            path => "/v2.0/preorder/:account_id",
+            path => "/v1.0/preorder_margin/:account_id",
             method => <<"POST">>,
             handler => 'openapi_preorder_handler'
         }
