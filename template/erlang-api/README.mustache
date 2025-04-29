@@ -32,7 +32,7 @@ Use `erlang-server` with `rebar3`
 
 ```erlang
 {deps, [
-    {openapi, {git, "https://gitlab.exan.tech/erlang/premargo_api", {tag, "erl-1.0.5b"}}}
+    {openapi, {git, "https://github.com/dideex/premargo-api", {tag, "erl-1.0.5b"}}}
 ]}.
 ```
 
@@ -65,54 +65,51 @@ Example usage:
 
 4. Logic Handler Callbacks
 
-The server requires a logic handler module that implements the `openapi_logic_handler` behaviour. This module is responsible for implementing the business logic for each API operation. The following callbacks must be implemented:
+The server requires a logic handler module that implements the `openapi_logic_handler` behaviour. This module is responsible for implementing the business logic for each API operation.
 
 ### Required Callbacks
 
-#### `accept_callback/4`
+#### `handle_callback/3`
 
 ```erlang
-accept_callback(Class, OperationID, Req, Context) -> 
-    {Code, Response, Req, Context}
+-spec handle_callback(operation_id(), context(), opts()) ->
+    {code(), handle_callback_return(), context(), opts()}.
 ```
 
 This callback is called when a request is received. It should:
-- Validate the request
-- Return a response code (200-599)
+- Process the request and execute the business logic
+- Return a response code (one of the defined codes in the module)
 - Return a response body or `stop` to indicate the request should not be processed further
-- Return the updated request and context
+- Return the updated context and options
 
-#### `provide_callback/4`
+Parameters:
+- `operation_id()`: The OpenAPI operation ID
+- `context()`: A map containing the request context
+- `opts()`: A map containing request metadata, including `req` which is the Cowboy request
 
-```erlang
-provide_callback(Class, OperationID, Req, Context) -> 
-    {Code, Response, Req, Context}
-```
-
-This callback is called when a response is being generated. It should:
-- Generate the appropriate response
-- Return a response code (200-599)
-- Return a response body or `stop` to indicate the response should not be processed further
-- Return the updated request and context
+Returns:
+- `{code(), handle_callback_return(), context(), opts()}`
+  - `code()`: One of `ok | created | accepted | moved_permanently | found | see_other | bad_request | unauthorized | forbidden | not_found | method_not_allowed`
+  - `handle_callback_return()`: Either a response (map or list) or the atom `stop`
 
 ### Optional Callbacks
 
-#### `forbidden_callback/4`
+#### `forbidden_callback/3`
 
 ```erlang
-forbidden_callback(Class, OperationID, Req, Context) -> 
-    {IsForbidden, Req, Context}
+-spec forbidden_callback(operation_id(), context(), opts()) ->
+    {boolean(), context(), opts()}.
 ```
 
 This callback is called to check if a request should be forbidden. It should:
-- Return `{true, Req, Context}` if the request should be forbidden
-- Return `{false, Req, Context}` if the request should be allowed
+- Return `{true, Context, Opts}` if the request should be forbidden
+- Return `{false, Context, Opts}` if the request should be allowed
 
-#### `validate_response/5`
+#### `validate_response/4`
 
 ```erlang
-validate_response(Class, OperationID, Code, Response, State) -> 
-    ok | no_return()
+-spec validate_response(operation_id(), code(), response(), jesse_state:state()) ->
+    ok | no_return().
 ```
 
 This callback is called to validate a response before it is sent. It should:
@@ -120,21 +117,51 @@ This callback is called to validate a response before it is sent. It should:
 - Return `ok` if the response is valid
 - Throw an error if the response is invalid
 
+#### `response_encoder/2`
+
+```erlang
+-spec response_encoder(operation_id(), response()) ->
+    iodata().
+```
+
+This callback is called to encode the response for the HTTP layer. It should:
+- Convert the response into a format suitable for sending over HTTP
+- Return an iodata() compatible value
+
+#### `custom_type_validator/3`
+
+```erlang
+-spec custom_type_validator(rule(), Value, Name) ->
+    ok | {ok, Value} | default | {wrong_param, rule(), Value, Name} | {error, iodata()}
+    when Value :: term(), Name :: request_param().
+```
+
+This callback is called to validate request parameters with custom types. It should:
+- Validate the provided value against the given rule
+- Return `ok` or `{ok, Value}` if the value is valid
+- Return `default` to use the default value
+- Return `{wrong_param, Rule, Value, Name}` if the value is invalid
+- Return `{error, iodata()}` in case you want to show custom error message
+
 ### Example Logic Handler
 
 ```erlang
 -module(my_logic_handler).
 -behaviour(openapi_logic_handler).
 
--export([accept_callback/4, provide_callback/4]).
+%% Required callbacks
+-export([handle_callback/3]).
 
-accept_callback(Class, OperationID, Req, Context) ->
-    % Implement your business logic here
-    {200, #{<<"message">> => <<"Request accepted">>}, Req, Context}.
+%% Optional callbacks
+-export([forbidden_callback/3]).
 
-provide_callback(Class, OperationID, Req, Context) ->
+handle_callback(OperationID, Context, Opts) ->
     % Implement your business logic here
-    {200, #{<<"message">> => <<"Response provided">>}, Req, Context}.
+    {ok, #{<<"message">> => <<"Request handled">>}, Context, Opts}.
+
+forbidden_callback(_OperationID, Context, Opts) ->
+    % Check if the request is allowed
+    {false, Context, Opts}.
 ```
 
 5. Compile and Run

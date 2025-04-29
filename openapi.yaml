@@ -1,19 +1,19 @@
 openapi: 3.0.0
 info:
-  title: Margin API
+  title: Preorder Margin API
   description: API for estimating trade margins for orders
   version: 1.0.0
   
 servers:
-  - url: /api/v2.0
-    description: Default server
+  - url: /api
+    description: Default API server
 
 tags:
   - name: preorder
     description: Account operations for margin calculations
 
 paths:
-  /preorder/{account_id}:
+  /v2.0/preorder/{account_id}:
     get:
       tags:
         - preorder
@@ -39,7 +39,7 @@ paths:
           required: true
           schema:
             type: number
-            format: double
+            format: float
           example: "35.68"
         - in: query
           name: currency
@@ -53,7 +53,7 @@ paths:
           required: false
           schema:
             type: number
-            format: double
+            format: float
           example: "99.71"
         - in: query
           name: showMarginStructure
@@ -110,11 +110,11 @@ paths:
                     properties:
                       price:
                         type: number
-                        format: double
+                        format: float
                         example: "45.31"
                       quantity:
                         type: number
-                        format: double
+                        format: float
                         example: "89.25"
                       symbolId:
                         type: string
@@ -147,33 +147,33 @@ components:
           enum: [regular, order_short, order_long]
         position:
           type: number
-          format: double
+          format: float
         price:
           type: number
-          format: double
+          format: float
         currency:
           type: string
         crossrate:
           type: number
-          format: double
+          format: float
         leverageRate:
           type: number
-          format: double
+          format: float
         margin:
           type: number
-          format: double
+          format: float
         convMargin:
           type: number
-          format: double
+          format: float
         extremeMargin:
           type: number
-          format: double
+          format: float
         convExtremeMargin:
           type: number
-          format: double
+          format: float
         effectiveQtty:
           type: number
-          format: double
+          format: float
 
     MarginStructure:
       type: object
@@ -192,30 +192,30 @@ components:
       properties:
         margin:
           type: number
-          format: double
+          format: float
           description: Required margin for the orders
         freeMoney:
           type: number
-          format: double
+          format: float
           description: Available free money
         totalFreeMoney:
           type: number
-          format: double
+          format: float
           description: Total available free money
         delta:
           type: number
-          format: double
+          format: float
           description: Margin change
         commissionChargeAccountId:
           type: string
           description: Account ID for commission charges
         expectedCommission:
           type: number
-          format: double
+          format: float
           description: Expected commission for the orders
         newOrdersCommission:
           type: number
-          format: double
+          format: float
           description: Commission for new orders
         marginCheckPassed:
           type: boolean

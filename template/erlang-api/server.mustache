@@ -45,7 +45,7 @@ do_get_cowboy_config(Key, Value, AccIn) ->
     AccIn#{Key => Value}.
 
 get_default_dispatch(LogicHandler, ServiceRoutes, SwaggerHandler) ->
-    Paths = openapi_router:get_paths(LogicHandler, ServiceRoutes, SwaggerHandler),
+    Paths = {{packageName}}_router:get_paths(LogicHandler, ServiceRoutes, SwaggerHandler),
     #{dispatch => cowboy_router:compile(Paths)}.
 
 get_default_opts(LogicHandler, ServiceRoutes, SwaggerHandler) ->
