@@ -1,7 +1,7 @@
 # coding: utf-8
 
 """
-    Margin API
+    Preorder Margin API
 
     API for estimating trade margins for orders
 
@@ -22,9 +22,9 @@ from setuptools import setup, find_packages  # noqa: H301
 # http://pypi.python.org/pypi/setuptools
 NAME = "openapi-client"
 VERSION = "1.0.0"
-PYTHON_REQUIRES = ">= 3.8"
+PYTHON_REQUIRES = ">= 3.9"
 REQUIRES = [
-    "urllib3 >= 1.25.3, < 3.0.0",
+    "urllib3 >= 2.1.0, < 3.0.0",
     "python-dateutil >= 2.8.2",
     "pydantic >= 2",
     "typing-extensions >= 4.7.1",
@@ -33,11 +33,11 @@ REQUIRES = [
 setup(
     name=NAME,
     version=VERSION,
-    description="Margin API",
+    description="Preorder Margin API",
     author="OpenAPI Generator community",
     author_email="team@openapitools.org",
     url="",
-    keywords=["OpenAPI", "OpenAPI-Generator", "Margin API"],
+    keywords=["OpenAPI", "OpenAPI-Generator", "Preorder Margin API"],
     install_requires=REQUIRES,
     packages=find_packages(exclude=["test", "tests"]),
     include_package_data=True,

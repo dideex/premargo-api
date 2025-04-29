@@ -1,11 +1,11 @@
 # openapi_client.PreorderApi
 
-All URIs are relative to *http://localhost/api/v2.0*
+All URIs are relative to */api*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**preorder_check_get**](PreorderApi.md#preorder_check_get) | **GET** /preorder/{account_id} | Estimate trade margin for one order
-[**preorder_check_post**](PreorderApi.md#preorder_check_post) | **POST** /preorder/{account_id} | Estimate trade margin for list of orders
+[**preorder_check_get**](PreorderApi.md#preorder_check_get) | **GET** /v2.0/preorder/{account_id} | Estimate trade margin for one order
+[**preorder_check_post**](PreorderApi.md#preorder_check_post) | **POST** /v2.0/preorder/{account_id} | Estimate trade margin for list of orders
 
 
 # **preorder_check_get**
@@ -22,10 +22,10 @@ from openapi_client.models.preorder_check_response import PreorderCheckResponse
 from openapi_client.rest import ApiException
 from pprint import pprint
 
-# Defining the host is optional and defaults to http://localhost/api/v2.0
+# Defining the host is optional and defaults to /api
 # See configuration.py for a list of all supported configuration parameters.
 configuration = openapi_client.Configuration(
-    host = "http://localhost/api/v2.0"
+    host = "/api"
 )
 
 
@@ -101,10 +101,10 @@ from openapi_client.models.preorder_check_response import PreorderCheckResponse
 from openapi_client.rest import ApiException
 from pprint import pprint
 
-# Defining the host is optional and defaults to http://localhost/api/v2.0
+# Defining the host is optional and defaults to /api
 # See configuration.py for a list of all supported configuration parameters.
 configuration = openapi_client.Configuration(
-    host = "http://localhost/api/v2.0"
+    host = "/api"
 )
 
 

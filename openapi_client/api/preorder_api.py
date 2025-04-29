@@ -1,7 +1,7 @@
 # coding: utf-8
 
 """
-    Margin API
+    Preorder Margin API
 
     API for estimating trade margins for orders
 
@@ -372,7 +372,7 @@ class PreorderApi:
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/preorder/{account_id}',
+            resource_path='/v2.0/preorder/{account_id}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -663,7 +663,7 @@ class PreorderApi:
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/preorder/{account_id}',
+            resource_path='/v2.0/preorder/{account_id}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

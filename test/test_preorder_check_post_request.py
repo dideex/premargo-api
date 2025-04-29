@@ -1,7 +1,7 @@
 # coding: utf-8
 
 """
-    Margin API
+    Preorder Margin API
 
     API for estimating trade margins for orders
 
