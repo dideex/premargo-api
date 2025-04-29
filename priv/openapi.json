@@ -2,19 +2,19 @@
   "openapi" : "3.0.0",
   "info" : {
     "description" : "API for estimating trade margins for orders",
-    "title" : "Margin API",
+    "title" : "Preorder Margin API",
     "version" : "1.0.0"
   },
   "servers" : [ {
-    "description" : "Default server",
-    "url" : "/api/v2.0"
+    "description" : "Default API server",
+    "url" : "/api"
   } ],
   "tags" : [ {
     "description" : "Account operations for margin calculations",
     "name" : "preorder"
   } ],
   "paths" : {
-    "/preorder/{account_id}" : {
+    "/v2.0/preorder/{account_id}" : {
       "get" : {
         "operationId" : "preorder_check_get",
         "parameters" : [ {
@@ -46,7 +46,7 @@
           "name" : "quantity",
           "required" : true,
           "schema" : {
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "style" : "form"
@@ -68,7 +68,7 @@
           "name" : "price",
           "required" : false,
           "schema" : {
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "style" : "form"
@@ -156,17 +156,17 @@
     "schemas" : {
       "MarginStructureComponent" : {
         "example" : {
-          "margin" : 4.145608029883936,
-          "convExtremeMargin" : 1.0246457001441578,
-          "leverageRate" : 2.027123023002322,
-          "price" : 9.301444243932576,
-          "convMargin" : 7.386281948385884,
-          "crossrate" : 3.616076749251911,
-          "extremeMargin" : 1.2315135367772556,
+          "margin" : 4.145608,
+          "convExtremeMargin" : 1.0246457,
+          "leverageRate" : 2.027123,
+          "price" : 9.301444,
+          "convMargin" : 7.386282,
+          "crossrate" : 3.6160767,
+          "extremeMargin" : 1.2315135,
           "currency" : "currency",
-          "position" : 7.061401241503109,
+          "position" : 7.0614014,
           "asset" : "asset",
-          "effectiveQtty" : 1.4894159098541704,
+          "effectiveQtty" : 1.4894159,
           "assetType" : "regular"
         },
         "properties" : {
@@ -179,42 +179,42 @@
             "type" : "string"
           },
           "position" : {
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "price" : {
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "currency" : {
             "type" : "string"
           },
           "crossrate" : {
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "leverageRate" : {
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "margin" : {
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "convMargin" : {
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "extremeMargin" : {
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "convExtremeMargin" : {
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "effectiveQtty" : {
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           }
         },
@@ -223,57 +223,57 @@
       "MarginStructure" : {
         "example" : {
           "before" : [ {
-            "margin" : 4.145608029883936,
-            "convExtremeMargin" : 1.0246457001441578,
-            "leverageRate" : 2.027123023002322,
-            "price" : 9.301444243932576,
-            "convMargin" : 7.386281948385884,
-            "crossrate" : 3.616076749251911,
-            "extremeMargin" : 1.2315135367772556,
+            "margin" : 4.145608,
+            "convExtremeMargin" : 1.0246457,
+            "leverageRate" : 2.027123,
+            "price" : 9.301444,
+            "convMargin" : 7.386282,
+            "crossrate" : 3.6160767,
+            "extremeMargin" : 1.2315135,
             "currency" : "currency",
-            "position" : 7.061401241503109,
+            "position" : 7.0614014,
             "asset" : "asset",
-            "effectiveQtty" : 1.4894159098541704,
+            "effectiveQtty" : 1.4894159,
             "assetType" : "regular"
           }, {
-            "margin" : 4.145608029883936,
-            "convExtremeMargin" : 1.0246457001441578,
-            "leverageRate" : 2.027123023002322,
-            "price" : 9.301444243932576,
-            "convMargin" : 7.386281948385884,
-            "crossrate" : 3.616076749251911,
-            "extremeMargin" : 1.2315135367772556,
+            "margin" : 4.145608,
+            "convExtremeMargin" : 1.0246457,
+            "leverageRate" : 2.027123,
+            "price" : 9.301444,
+            "convMargin" : 7.386282,
+            "crossrate" : 3.6160767,
+            "extremeMargin" : 1.2315135,
             "currency" : "currency",
-            "position" : 7.061401241503109,
+            "position" : 7.0614014,
             "asset" : "asset",
-            "effectiveQtty" : 1.4894159098541704,
+            "effectiveQtty" : 1.4894159,
             "assetType" : "regular"
           } ],
           "after" : [ {
-            "margin" : 4.145608029883936,
-            "convExtremeMargin" : 1.0246457001441578,
-            "leverageRate" : 2.027123023002322,
-            "price" : 9.301444243932576,
-            "convMargin" : 7.386281948385884,
-            "crossrate" : 3.616076749251911,
-            "extremeMargin" : 1.2315135367772556,
+            "margin" : 4.145608,
+            "convExtremeMargin" : 1.0246457,
+            "leverageRate" : 2.027123,
+            "price" : 9.301444,
+            "convMargin" : 7.386282,
+            "crossrate" : 3.6160767,
+            "extremeMargin" : 1.2315135,
             "currency" : "currency",
-            "position" : 7.061401241503109,
+            "position" : 7.0614014,
             "asset" : "asset",
-            "effectiveQtty" : 1.4894159098541704,
+            "effectiveQtty" : 1.4894159,
             "assetType" : "regular"
           }, {
-            "margin" : 4.145608029883936,
-            "convExtremeMargin" : 1.0246457001441578,
-            "leverageRate" : 2.027123023002322,
-            "price" : 9.301444243932576,
-            "convMargin" : 7.386281948385884,
-            "crossrate" : 3.616076749251911,
-            "extremeMargin" : 1.2315135367772556,
+            "margin" : 4.145608,
+            "convExtremeMargin" : 1.0246457,
+            "leverageRate" : 2.027123,
+            "price" : 9.301444,
+            "convMargin" : 7.386282,
+            "crossrate" : 3.6160767,
+            "extremeMargin" : 1.2315135,
             "currency" : "currency",
-            "position" : 7.061401241503109,
+            "position" : 7.0614014,
             "asset" : "asset",
-            "effectiveQtty" : 1.4894159098541704,
+            "effectiveQtty" : 1.4894159,
             "assetType" : "regular"
           } ]
         },
@@ -295,91 +295,91 @@
       },
       "PreorderCheckResponse" : {
         "example" : {
-          "expectedCommission" : 5.637376656633329,
-          "margin" : 0.8008281904610115,
-          "newOrdersCommission" : 2.3021358869347655,
+          "expectedCommission" : 5.637377,
+          "margin" : 0.8008282,
+          "newOrdersCommission" : 2.302136,
           "marginStructure" : {
             "before" : [ {
-              "margin" : 4.145608029883936,
-              "convExtremeMargin" : 1.0246457001441578,
-              "leverageRate" : 2.027123023002322,
-              "price" : 9.301444243932576,
-              "convMargin" : 7.386281948385884,
-              "crossrate" : 3.616076749251911,
-              "extremeMargin" : 1.2315135367772556,
+              "margin" : 4.145608,
+              "convExtremeMargin" : 1.0246457,
+              "leverageRate" : 2.027123,
+              "price" : 9.301444,
+              "convMargin" : 7.386282,
+              "crossrate" : 3.6160767,
+              "extremeMargin" : 1.2315135,
               "currency" : "currency",
-              "position" : 7.061401241503109,
+              "position" : 7.0614014,
               "asset" : "asset",
-              "effectiveQtty" : 1.4894159098541704,
+              "effectiveQtty" : 1.4894159,
               "assetType" : "regular"
             }, {
-              "margin" : 4.145608029883936,
-              "convExtremeMargin" : 1.0246457001441578,
-              "leverageRate" : 2.027123023002322,
-              "price" : 9.301444243932576,
-              "convMargin" : 7.386281948385884,
-              "crossrate" : 3.616076749251911,
-              "extremeMargin" : 1.2315135367772556,
+              "margin" : 4.145608,
+              "convExtremeMargin" : 1.0246457,
+              "leverageRate" : 2.027123,
+              "price" : 9.301444,
+              "convMargin" : 7.386282,
+              "crossrate" : 3.6160767,
+              "extremeMargin" : 1.2315135,
               "currency" : "currency",
-              "position" : 7.061401241503109,
+              "position" : 7.0614014,
               "asset" : "asset",
-              "effectiveQtty" : 1.4894159098541704,
+              "effectiveQtty" : 1.4894159,
               "assetType" : "regular"
             } ],
             "after" : [ {
-              "margin" : 4.145608029883936,
-              "convExtremeMargin" : 1.0246457001441578,
-              "leverageRate" : 2.027123023002322,
-              "price" : 9.301444243932576,
-              "convMargin" : 7.386281948385884,
-              "crossrate" : 3.616076749251911,
-              "extremeMargin" : 1.2315135367772556,
+              "margin" : 4.145608,
+              "convExtremeMargin" : 1.0246457,
+              "leverageRate" : 2.027123,
+              "price" : 9.301444,
+              "convMargin" : 7.386282,
+              "crossrate" : 3.6160767,
+              "extremeMargin" : 1.2315135,
               "currency" : "currency",
-              "position" : 7.061401241503109,
+              "position" : 7.0614014,
               "asset" : "asset",
-              "effectiveQtty" : 1.4894159098541704,
+              "effectiveQtty" : 1.4894159,
               "assetType" : "regular"
             }, {
-              "margin" : 4.145608029883936,
-              "convExtremeMargin" : 1.0246457001441578,
-              "leverageRate" : 2.027123023002322,
-              "price" : 9.301444243932576,
-              "convMargin" : 7.386281948385884,
-              "crossrate" : 3.616076749251911,
-              "extremeMargin" : 1.2315135367772556,
+              "margin" : 4.145608,
+              "convExtremeMargin" : 1.0246457,
+              "leverageRate" : 2.027123,
+              "price" : 9.301444,
+              "convMargin" : 7.386282,
+              "crossrate" : 3.6160767,
+              "extremeMargin" : 1.2315135,
               "currency" : "currency",
-              "position" : 7.061401241503109,
+              "position" : 7.0614014,
               "asset" : "asset",
-              "effectiveQtty" : 1.4894159098541704,
+              "effectiveQtty" : 1.4894159,
               "assetType" : "regular"
             } ]
           },
           "commissionChargeAccountId" : "commissionChargeAccountId",
           "marginCheckPassed" : true,
           "warnings" : [ "warnings", "warnings" ],
-          "delta" : 5.962133916683182,
-          "totalFreeMoney" : 1.4658129805029452,
-          "freeMoney" : 6.027456183070403
+          "delta" : 5.962134,
+          "totalFreeMoney" : 1.4658129,
+          "freeMoney" : 6.0274563
         },
         "properties" : {
           "margin" : {
             "description" : "Required margin for the orders",
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "freeMoney" : {
             "description" : "Available free money",
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "totalFreeMoney" : {
             "description" : "Total available free money",
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "delta" : {
             "description" : "Margin change",
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "commissionChargeAccountId" : {
@@ -388,12 +388,12 @@
           },
           "expectedCommission" : {
             "description" : "Expected commission for the orders",
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "newOrdersCommission" : {
             "description" : "Commission for new orders",
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "marginCheckPassed" : {
@@ -417,12 +417,12 @@
         "properties" : {
           "price" : {
             "example" : 45.31,
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "quantity" : {
             "example" : 89.25,
-            "format" : "double",
+            "format" : "float",
             "type" : "number"
           },
           "symbolId" : {

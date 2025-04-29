@@ -8,17 +8,13 @@ and `validate_response/4` respectively.
 """.
 
 -export([prepare_validator/0, prepare_validator/1, prepare_validator/2]).
--export([populate_request/3, validate_response/4]).
+-export([populate_request/3, populate_request/4, validate_response/4]).
 -export([format_error_description/4]).
 -export([swagger_schema/0]).
 
 -ignore_xref([populate_request/3, validate_response/4]).
 -ignore_xref([prepare_validator/0, prepare_validator/1, prepare_validator/2]).
 -ignore_xref([format_error_description/4]).
-
--type class() ::
-    'preorder'.
-
 
 -type operation_id() ::
     'preorder_check_get' | %% Estimate trade margin for one order
@@ -27,8 +23,9 @@ and `validate_response/4` respectively.
 
 -type request_param() :: atom().
 -type swagger_json() :: map().
+-type custom_type_validator() :: undefined | openapi_logic_handler:custom_type_validator().
 
--export_type([class/0, operation_id/0, swagger_json/0]).
+-export_type([operation_id/0, swagger_json/0, request_param/0]).
 
 -dialyzer({nowarn_function, [validate_response_body/4]}).
 
@@ -54,6 +51,7 @@ and `validate_response/4` respectively.
     schema |
     required |
     not_required.
+-export_type([rule/0]).
 
 -doc #{equiv => prepare_validator/2}.
 -spec prepare_validator() -> jesse_state:state().
@@ -80,10 +78,7 @@ Provides decoded JSON schema for swagger ui
 swagger_schema() ->
     schema_from_cache(get_openapi_path()).
 
--doc """
-Automatically loads the entire body from the cowboy req
-and validates the JSON body against the schema.
-""".
+-doc #{equiv => populate_request/4}.
 -spec populate_request(
         OperationID :: operation_id(),
         Req :: cowboy_req:req(),
@@ -92,7 +87,22 @@ and validates the JSON body against the schema.
     {error, Reason :: any(), Req :: cowboy_req:req()}.
 populate_request(OperationID, Req, ValidatorState) ->
     Params = request_params(OperationID),
-    populate_request_params(OperationID, Params, Req, ValidatorState, #{}).
+    populate_request_params(OperationID, Params, Req, ValidatorState, #{}, undefined).
+
+-doc """
+Automatically loads the entire body from the cowboy req
+and validates the JSON body against the schema.
+""".
+-spec populate_request(
+        OperationID :: operation_id(),
+        Req :: cowboy_req:req(),
+        ValidatorState :: jesse_state:state(),
+        CustomValidator :: custom_type_validator()) ->
+    {ok, Model :: #{}, Req :: cowboy_req:req()} |
+    {error, Reason :: any(), Req :: cowboy_req:req()}.
+populate_request(OperationID, Req, ValidatorState, CustomValidator) ->
+    Params = request_params(OperationID),
+    populate_request_params(OperationID, Params, Req, ValidatorState, #{}, CustomValidator).
 
 -doc """
 Validates that the provided `Code` and `Body` comply with the `ValidatorState` schema
@@ -208,29 +218,29 @@ request_param_info(OperationID, Name) ->
     error({unknown_param, OperationID, Name}).
 
 -spec populate_request_params(
-        operation_id(), [request_param()], cowboy_req:req(), jesse_state:state(), map()) ->
+        operation_id(), [request_param()], cowboy_req:req(), jesse_state:state(), map(), custom_type_validator()) ->
     {ok, map(), cowboy_req:req()} | {error, _, cowboy_req:req()}.
-populate_request_params(_, [], Req, _, Model) ->
+populate_request_params(_, [], Req, _, Model, _CustomValidator) ->
     {ok, Model, Req};
-populate_request_params(OperationID, [ReqParamName | T], Req0, ValidatorState, Model0) ->
-    case populate_request_param(OperationID, ReqParamName, Req0, ValidatorState) of
+populate_request_params(OperationID, [ReqParamName | T], Req0, ValidatorState, Model0, CustomValidator) ->
+    case populate_request_param(OperationID, ReqParamName, Req0, ValidatorState, CustomValidator) of
         {ok, V, Req} ->
             Model = Model0#{ReqParamName => V},
-            populate_request_params(OperationID, T, Req, ValidatorState, Model);
+            populate_request_params(OperationID, T, Req, ValidatorState, Model, CustomValidator);
         Error ->
             Error
     end.
 
 -spec populate_request_param(
-        operation_id(), request_param(), cowboy_req:req(), jesse_state:state()) ->
+        operation_id(), request_param(), cowboy_req:req(), jesse_state:state(), custom_type_validator()) ->
     {ok, term(), cowboy_req:req()} | {error, term(), cowboy_req:req()}.
-populate_request_param(OperationID, ReqParamName, Req0, ValidatorState) ->
+populate_request_param(OperationID, ReqParamName, Req0, ValidatorState, CustomValidator) ->
     #{rules := Rules, source := Source} = request_param_info(OperationID, ReqParamName),
     case get_value(Source, ReqParamName, Req0) of
         {error, Reason, Req} ->
             {error, Reason, Req};
         {Value, Req} ->
-            case prepare_param(Rules, ReqParamName, Value, ValidatorState) of
+            case prepare_param(Rules, ReqParamName, Value, ValidatorState, CustomValidator) of
                 {ok, Result} -> {ok, Result, Req};
                 {error, Reason} ->
                     {error, Reason, Req}
@@ -244,6 +254,24 @@ validate_response_body(list, ReturnBaseType, Body, ValidatorState) ->
 
 validate_response_body(_, ReturnBaseType, Body, ValidatorState) ->
     validate(schema, Body, ReturnBaseType, ValidatorState).
+
+-spec pre_validate(rule(), term(), request_param(), jesse_state:state(), custom_type_validator()) ->
+    ok | {ok, term()}.
+pre_validate(Rule, Value, Params, State, undefined) ->
+    validate(Rule, Value, Params, State);
+pre_validate(Rule, Value, Params, State, CustomValidator) ->
+    case CustomValidator(Rule, Value, Params) of
+        default ->
+            validate(Rule, Value, Params, State);
+        {wrong_param, Rule, Value, Name} ->
+            validation_error(Rule, Name, Value);
+        ok ->
+            ok;
+        {ok, Value} ->
+            {ok, Value};
+        {error, Message} ->
+            throw({custom_error, Message})
+    end.
 
 -spec validate(rule(), term(), request_param(), jesse_state:state()) ->
     ok | {ok, term()}.
@@ -419,11 +447,11 @@ validate_with_schema(Body, Definition, ValidatorState) ->
         ValidatorState
     ).
 
--spec prepare_param([rule()], request_param(), term(), jesse_state:state()) ->
+-spec prepare_param([rule()], request_param(), term(), jesse_state:state(), custom_type_validator()) ->
     {ok, term()} | {error, Reason :: any()}.
-prepare_param(Rules, ReqParamName, Value, ValidatorState) ->
+prepare_param(Rules, ReqParamName, Value, ValidatorState, CustomValidator) ->
     Fun = fun(Rule, Acc) ->
-        case validate(Rule, Acc, ReqParamName, ValidatorState) of
+        case pre_validate(Rule, Acc, ReqParamName, ValidatorState, CustomValidator) of
             ok -> Acc;
             {ok, Prepared} -> Prepared
         end
