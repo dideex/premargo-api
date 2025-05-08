@@ -20,7 +20,7 @@
 start(ID, Params) ->
     Transport = maps:get(transport, Params, tcp),
     TransportOpts = maps:get(transport_opts, Params, #{}),
-    ProtocolOpts = maps:get(procotol_opts, Params, #{}),
+    ProtocolOpts = maps:get(protocol_opts, Params, #{}),
     LogicHandler = maps:get(logic_handler, Params, ?DEFAULT_LOGIC_HANDLER),
     ServiceRoutes = maps:get(service_routes, Params, []),
     SwaggerHandler = maps:get(swagger_json_handler, Params, undefined),

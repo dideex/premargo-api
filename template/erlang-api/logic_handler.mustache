@@ -13,7 +13,7 @@
 }.
 -export_type([opts/0]).
 
--type response() :: map() | list().
+-type response() :: map() | list() | iodata().
 -type operation_id() :: {{packageName}}_api:operation_id().
 -type rule() :: {{packageName}}_api:rule().
 -type request_param() :: {{packageName}}_api:request_param().
@@ -21,18 +21,18 @@
 -type handle_callback_return() :: stop | response().
 -type handle_callback() ::
     fun((operation_id(), context(), opts()) ->
-            {code(), handle_callback_return(), context(), opts()}).
+            {code(), handle_callback_return(), opts()}).
 -type forbidden_callback() ::
     fun((operation_id(), context(), opts()) ->
-            {boolean(), context(), opts()}).
+            {boolean(), opts()} | {boolean(), cowboy_req:req(), opts()}).
 -type validate_response() ::
     fun((operation_id(), code(), response(), jesse_state:state()) ->
             ok | no_return()).
 -type response_encoder() ::
     fun((operation_id(), response()) ->
             iodata()).
--type custom_type_validator() :: fun((rule(), term(), request_param()) ->
-    ok | {ok, term()} | default | {wrong_param, rule(), term(), request_param()}) | {error, iodata()}.
+-type custom_type_validator() :: fun((rule(), Name::request_param(), Value::term()) ->
+    ok | {ok, term()} | default | {wrong_param, rule(), Name::request_param(), Value::term()}) | {error, iodata()}.
 -type context() :: map().
 
 -export_type([context/0, response_encoder/0, custom_type_validator/0,
@@ -45,7 +45,7 @@
     {code(), handle_callback_return(), context(), opts()}.
 
 -callback forbidden_callback(operation_id(), context(), opts()) ->
-    {boolean(), context(), opts()}.
+    {boolean(), context(), opts()} | {boolean(), cowboy_req:req(), opts()}.
 
 -callback validate_response(operation_id(), code(), response(), jesse_state:state()) ->
     ok | no_return().
@@ -53,23 +53,23 @@
 -callback response_encoder(operation_id(), response()) ->
     iodata().
 
--callback custom_type_validator(rule(), Value, Name) ->
-    ok | {ok, Value} | default | {wrong_param, rule(), Value, Name} | {error, iodata()}
+-callback custom_type_validator(rule(), Name, Value) ->
+    ok | {ok, Value} | default | {wrong_param, rule(), Name, Value} | {error, iodata()}
     when Value :: term(), Name :: request_param().
 
 -export([handle_callback/3, forbidden_callback/3]).
 -ignore_xref([handle_callback/3, forbidden_callback/3]).
 
 -spec forbidden_callback(operation_id(), context(), opts()) ->
-    {boolean(), context(), opts()}.
-forbidden_callback(_OperationID, Context, Opts) ->
-    {false, Context, Opts}.
+    {boolean(), opts()} | {boolean(), cowboy_req:req(), opts()}.
+forbidden_callback(_OperationID, _Context, Opts) ->
+    {false, Opts}.
 
 -spec handle_callback(operation_id(), context(), opts()) ->
-    {code(), handle_callback_return(), context(), opts()}.
+    {code(), handle_callback_return(), opts()}.
 handle_callback(OperationID, Context, Opts) ->
     ?LOG_ERROR(#{what => "Got not implemented request to process",
                  operation_id => OperationID,
                  opts => Opts,
                  context => Context}),
-    {bad_request, stop, Context, Opts}.
+    {bad_request, stop, Opts}.

@@ -201,19 +201,19 @@ validate_response_body(_, ReturnBaseType, Body, ValidatorState) ->
     validate(schema, Body, ReturnBaseType, ValidatorState).
 
 -spec pre_validate(rule(), term(), request_param(), jesse_state:state(), custom_type_validator()) ->
-    ok | {ok, term()}.
+    ok | {ok, term()} | no_return().
 pre_validate(Rule, Value, Params, State, undefined) ->
     validate(Rule, Value, Params, State);
 pre_validate(Rule, Value, Params, State, CustomValidator) ->
-    case CustomValidator(Rule, Value, Params) of
+    case CustomValidator(Rule, Params, Value) of
         default ->
             validate(Rule, Value, Params, State);
-        {wrong_param, Rule, Value, Name} ->
-            validation_error(Rule, Name, Value);
+        {wrong_param, ERule, EName, EValue} ->
+            validation_error(ERule, EName, EValue);
         ok ->
             ok;
-        {ok, Value} ->
-            {ok, Value};
+        {ok, Updated} ->
+            {ok, Updated};
         {error, Message} ->
             throw({custom_error, Message})
     end.

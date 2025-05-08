@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Preorder Margin API
   description: API for estimating trade margins for orders
-  version: 1.0.0
+  version: 0.0.1
   
 servers:
   - url: /api
@@ -136,9 +136,28 @@ paths:
 
 components:
   schemas:
-    MarginStructureComponent:
+    MarginComponent:
       type: object
+      required:
+        - type
+        - asset
+        - assetType
+        - position
+        - price
+        - currency
+        - currencyLeverageRateLong
+        - currencyLeverageRateShort
+        - crossrate
+        - leverageRate
+        - margin
+        - convertedMargin
+        - extremeMargin
+        - convertedExtremeMargin
+        - effectiveQtty
       properties:
+        type:
+          type: string
+          enum: [margin]
         asset:
           type: string
           description: Asset identifier
@@ -146,76 +165,424 @@ components:
           type: string
           enum: [regular, order_short, order_long]
         position:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
         price:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
         currency:
           type: string
+        currencyLeverageRateLong:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        currencyLeverageRateShort:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
         crossrate:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
         leverageRate:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
         margin:
-          type: number
-          format: float
-        convMargin:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
         extremeMargin:
-          type: number
-          format: float
-        convExtremeMargin:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedExtremeMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
         effectiveQtty:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+
+    CurrencyOrderMarginComponent:
+      type: object
+      required:
+        - type
+        - currency
+        - longQuantity
+        - shortQuantity
+        - longMargin
+        - shortMargin
+        - margin
+        - convertedMargin
+        - crossrate
+        - currencyLeverageRateShort
+        - currencyLeverageRateLong
+      properties:
+        type:
+          type: string
+          enum: [currency_order_margin]
+        currency:
+          type: string
+        longQuantity:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        shortQuantity:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        longMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        shortMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        margin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        crossrate:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        currencyLeverageRateShort:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        currencyLeverageRateLong:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+
+    ScanningRiskComponent:
+      type: object
+      required:
+        - type
+        - underlying
+        - currency
+        - assetsList
+        - assetsLongList
+        - assetsShortList
+        - leverageRate
+        - margin
+        - convertedMargin
+        - extremeMargin
+        - convertedExtremeMargin
+      properties:
+        type:
+          type: string
+          enum: [scanning_risk]
+        underlying:
+          type: string
+        currency:
+          type: string
+        assetsList:
+          type: array
+          items:
+            type: string
+        assetsLongList:
+          type: array
+          items:
+            type: string
+        assetsShortList:
+          type: array
+          items:
+            type: string
+        leverageRate:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        margin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        extremeMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedExtremeMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+
+    InterspreadMarginComponent:
+      type: object
+      required:
+        - type
+        - underlying
+        - currency
+        - assetsList
+        - assetsLongList
+        - assetsShortList
+        - spreads
+        - leverageRate
+        - margin
+        - convertedMargin
+        - extremeMargin
+        - convertedExtremeMargin
+      properties:
+        type:
+          type: string
+          enum: [interspread_margin]
+        underlying:
+          type: string
+        currency:
+          type: string
+        assetsList:
+          type: array
+          items:
+            type: string
+        assetsLongList:
+          type: array
+          items:
+            type: string
+        assetsShortList:
+          type: array
+          items:
+            type: string
+        spreads:
+          type: object
+          required:
+            - frontFront
+            - frontBack
+            - backBack
+          properties:
+            frontFront:
+              type: string
+              pattern: '^-?\d*\.?\d+$'
+            frontBack:
+              type: string
+              pattern: '^-?\d*\.?\d+$'
+            backBack:
+              type: string
+              pattern: '^-?\d*\.?\d+$'
+        leverageRate:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        margin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        extremeMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedExtremeMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+
+    IntercommodityCreditComponent:
+      type: object
+      required:
+        - type
+        - underlying1
+        - underlying2
+        - currency
+        - spreads
+        - leverageRate
+        - margin
+        - convertedMargin
+      properties:
+        type:
+          type: string
+          enum: [intercommodity_credit]
+        underlying1:
+          type: string
+        underlying2:
+          type: string
+        currency:
+          type: string
+        spreads:
+          type: object
+          required:
+            - frontFront
+            - frontBack
+            - backFront
+            - backBack
+          properties:
+            frontFront:
+              type: string
+              pattern: '^-?\d*\.?\d+$'
+            frontBack:
+              type: string
+              pattern: '^-?\d*\.?\d+$'
+            backFront:
+              type: string
+              pattern: '^-?\d*\.?\d+$'
+            backBack:
+              type: string
+              pattern: '^-?\d*\.?\d+$'
+        leverageRate:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        margin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+
+    OptionMinimumComponent:
+      type: object
+      required:
+        - type
+        - underlying
+        - currency
+        - assetsList
+        - assetsLongList
+        - assetsShortList
+        - leverageRate
+        - margin
+        - convertedMargin
+        - extremeMargin
+        - convertedExtremeMargin
+      properties:
+        type:
+          type: string
+          enum: [option_minimum]
+        underlying:
+          type: string
+        currency:
+          type: string
+        assetsList:
+          type: array
+          items:
+            type: string
+        assetsLongList:
+          type: array
+          items:
+            type: string
+        assetsShortList:
+          type: array
+          items:
+            type: string
+        leverageRate:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        margin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        extremeMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedExtremeMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+
+    BlockedFundsComponent:
+      type: object
+      required:
+        - type
+        - reason
+        - currency
+        - margin
+        - convertedMargin
+      properties:
+        type:
+          type: string
+          enum: [blocked_funds]
+        reason:
+          type: string
+        currency:
+          type: string
+        margin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+
+    OrderMarginComponent:
+      type: object
+      required:
+        - type
+        - currency
+        - asset
+        - margin
+        - convertedMargin
+      properties:
+        type:
+          type: string
+          enum: [order_margin]
+        currency:
+          type: string
+        asset:
+          type: string
+        margin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
+        convertedMargin:
+          type: string
+          pattern: '^-?\d*\.?\d+$'
 
     MarginStructure:
       type: object
+      required:
+        - before
+        - after
       properties:
         before:
           type: array
           items:
-            $ref: '#/components/schemas/MarginStructureComponent'
+            anyOf:
+              - $ref: '#/components/schemas/MarginComponent'
+              - $ref: '#/components/schemas/CurrencyOrderMarginComponent'
+              - $ref: '#/components/schemas/ScanningRiskComponent'
+              - $ref: '#/components/schemas/InterspreadMarginComponent'
+              - $ref: '#/components/schemas/IntercommodityCreditComponent'
+              - $ref: '#/components/schemas/OptionMinimumComponent'
+              - $ref: '#/components/schemas/BlockedFundsComponent'
+              - $ref: '#/components/schemas/OrderMarginComponent'
         after:
           type: array
           items:
-            $ref: '#/components/schemas/MarginStructureComponent'
+            anyOf:
+              - $ref: '#/components/schemas/MarginComponent'
+              - $ref: '#/components/schemas/CurrencyOrderMarginComponent'
+              - $ref: '#/components/schemas/ScanningRiskComponent'
+              - $ref: '#/components/schemas/InterspreadMarginComponent'
+              - $ref: '#/components/schemas/IntercommodityCreditComponent'
+              - $ref: '#/components/schemas/OptionMinimumComponent'
+              - $ref: '#/components/schemas/BlockedFundsComponent'
+              - $ref: '#/components/schemas/OrderMarginComponent'
 
     PreorderCheckResponse:
       type: object
+      required:
+        - margin
+        - freeMoney
+        - totalFreeMoney
+        - delta
+        - commissionChargeAccountId
+        - expectedCommission
+        - newOrdersCommission
+        - marginCheckPassed
+        - marginStructure
+        - warnings
       properties:
         margin:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
           description: Required margin for the orders
         freeMoney:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
           description: Available free money
         totalFreeMoney:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
           description: Total available free money
         delta:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
           description: Margin change
         commissionChargeAccountId:
           type: string
           description: Account ID for commission charges
         expectedCommission:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
           description: Expected commission for the orders
         newOrdersCommission:
-          type: number
-          format: float
+          type: string
+          pattern: '^-?\d*\.?\d+$'
           description: Commission for new orders
         marginCheckPassed:
           type: boolean
@@ -223,9 +590,15 @@ components:
         marginStructure:
           $ref: '#/components/schemas/MarginStructure'
         warnings:
-          type: array
-          items:
-            type: string
-          description: List of warnings if any
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Map of asset identifiers to their warning messages
+        reason:
+          type: string
+          enum: [close_only, insufficient_margin, insufficient_commission, all_checks_passed]
+          description: Reason for the margin check result
 
   securitySchemes: {}

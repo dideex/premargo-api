@@ -39,7 +39,6 @@ Exposes the following operation IDs:
 
 -type state() :: #state{}.
 
--type context() :: {{packageName}}_logic_handler:context().
 -type opts() :: {{packageName}}_logic_handler:opts().
 -type code() :: {{packageName}}_logic_handler:code().
 -type response() :: {{packageName}}_logic_handler:handle_callback_return().
@@ -52,7 +51,7 @@ init(Req, {Operations, Module}) ->
     State = #state{operation_id = OperationID,
                    handle_callback = fun Module:handle_callback/3,
                    custom_type_validator = maybe_exported_fun(Module, custom_type_validator, 3),
-                   validate_response = maybe_exported_fun(Module, validate_response, 5),
+                   validate_response = maybe_exported_fun(Module, validate_response, 4),
                    response_encoder = maybe_exported_fun(Module, response_encoder, 2),
                    forbidden_callback = maybe_exported_fun(Module, forbidden_callback, 3)},
     {cowboy_rest, Req, State}.
@@ -63,11 +62,11 @@ init(Req, {Operations, Module}) ->
 forbidden(Req, #state{operation_id = OperationID,
                       forbidden_callback = undefined,
                       context = Context} = State) ->
-    handle_result({{packageName}}_logic_handler:forbidden_callback(OperationID, Context, make_opts(Req)), State);
+    handle_fobidden({{packageName}}_logic_handler:forbidden_callback(OperationID, Context, make_opts(Req)), State);
 forbidden(Req, #state{operation_id = OperationID,
                       forbidden_callback = Handler,
                       context = Context} = State) ->
-    handle_result(Handler(OperationID, Context, make_opts(Req)), State).
+    handle_fobidden(Handler(OperationID, Context, make_opts(Req)), State).
 
 -spec allowed_methods(cowboy_req:req(), state()) ->
     {[binary()], cowboy_req:req(), state()}.
@@ -160,15 +159,19 @@ error_description({wrong_param, Name, Val, Rule, Info}) ->
 error_description({custom_error, Msg}) ->
     Msg.
 
--spec handle_result({boolean(), context(), opts()}, state()) ->
-        {boolean(), cowboy_req:req(), state()};
-    ({code(), response(), context(), opts()}, state()) ->
-        {code(), response(), cowboy_req:req(), state()}.
-handle_result({Res, Context, #{req := Req}}, State) ->
-    {Res, Req, State#state{context = Context}};
-handle_result({Code, Res, Context, #{req := Req}}, State) ->
-    {Code, Res, Req, State#state{context = Context}}.
+-spec handle_fobidden({boolean(), opts()}, state()) ->
+    {boolean(), cowboy_req:req(), state()};
+({boolean(), cowboy_req:req(), opts()}, state()) ->
+    {boolean(), cowboy_req:req(), state()}.
+handle_fobidden({Flag, #{req := Req}}, State) ->
+    {Flag, Req, State};
+handle_fobidden({Flag, Req, _Opts}, State) ->
+    {Flag, Req, State}.
 
+-spec handle_result({code(), response(), opts()}, state()) ->
+    {code(), response(), cowboy_req:req(), state()}.
+handle_result({Code, Res, #{req := Req}}, State) ->
+    {Code, Res, Req, State}.
 
 -spec process_response(pos_integer(), iodata() | stop, cowboy_req:req(), state()) -> 
     {stop, cowboy_req:req(), state()}.
@@ -182,6 +185,8 @@ process_response(Code, Body, Req, State) ->
 
 -spec encode(openapi_logic_handler:response_encoder() | undefined, operation_id(), response()) ->
     iodata() | stop.
+encode(undefined, _OperationID, Res) when is_binary(Res) ->
+    Res;
 encode(_Handler, _OperationID, stop) ->
     stop;
 encode(undefined, _OperationID, Res) ->
