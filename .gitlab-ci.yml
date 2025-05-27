@@ -139,10 +139,13 @@ push_erlang:
   before_script:
     - git config --global user.email "${GIT_USER_EMAIL}"
     - git config --global user.name "${GIT_USER_NAME}"
+    - mkdir -p $HOME/.ssh
+    - chmod 700 $HOME/.ssh
   script:
     - ci/push_generated.sh generated-erlang ${ERLANG_BRANCH} erl ${VERSION}
   variables:
     GIT_STRATEGY: clone
+    SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
   rules:
     - if: $CI_COMMIT_BRANCH == $MAIN_BRANCH
       when: always
@@ -159,10 +162,13 @@ push_python:
   before_script:
     - git config --global user.email "${GIT_USER_EMAIL}"
     - git config --global user.name "${GIT_USER_NAME}"
+    - mkdir -p $HOME/.ssh
+    - chmod 700 $HOME/.ssh
   script:
     - ci/push_generated.sh generated-python ${PYTHON_BRANCH} py ${VERSION}
   variables:
     GIT_STRATEGY: clone
+    SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
   rules:
     - if: $CI_COMMIT_BRANCH == $MAIN_BRANCH
       when: always

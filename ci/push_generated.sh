@@ -7,21 +7,28 @@ BRANCH="$2"
 TAG_PREFIX="$3"
 VERSION="$4"
 
+# Debug output
+echo "Current working directory: $(pwd)"
+echo "SSH_PRIVATE_KEY path: $SSH_PRIVATE_KEY"
+echo "GIT_REPOSITORY: $GIT_REPOSITORY"
+
 # SSH setup
 if [ ! -f "$SSH_PRIVATE_KEY" ]; then
   echo "SSH_PRIVATE_KEY file not found at: $SSH_PRIVATE_KEY"
   exit 1
 fi
+
 echo "Reading SSH key from file: $SSH_PRIVATE_KEY"
 eval $(ssh-agent -s)
-mkdir -p ~/.ssh
-chmod 700 ~/.ssh
-base64 -d "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-chmod 600 ~/.ssh/id_rsa
-ssh-add ~/.ssh/id_rsa 2>&1 || { echo "Failed to add SSH key"; exit 1; }
+SSH_DIR="$HOME/.ssh"
+mkdir -p "$SSH_DIR"
+chmod 700 "$SSH_DIR"
+base64 -d "$SSH_PRIVATE_KEY" > "$SSH_DIR/id_rsa"
+chmod 600 "$SSH_DIR/id_rsa"
+ssh-add "$SSH_DIR/id_rsa" 2>&1 || { echo "Failed to add SSH key"; exit 1; }
 ssh-add -l || echo "No keys found in ssh-agent"
-ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-chmod 644 ~/.ssh/known_hosts
+ssh-keyscan gitlab.com >> "$SSH_DIR/known_hosts"
+chmod 644 "$SSH_DIR/known_hosts"
 git remote set-url origin "${GIT_REPOSITORY}"
 
 # Git push logic
