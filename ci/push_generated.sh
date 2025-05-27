@@ -13,8 +13,8 @@ echo "SSH_PRIVATE_KEY path: $SSH_PRIVATE_KEY"
 echo "GIT_REPOSITORY: $GIT_REPOSITORY"
 
 # SSH setup
-if [ ! -f "$SSH_PRIVATE_KEY" ]; then
-  echo "SSH_PRIVATE_KEY file not found at: $SSH_PRIVATE_KEY"
+if [ -z "$SSH_PRIVATE_KEY" ]; then
+  echo "SSH_PRIVATE_KEY variable is not set"
   exit 1
 fi
 
@@ -23,7 +23,7 @@ eval $(ssh-agent -s)
 SSH_DIR="$HOME/.ssh"
 mkdir -p "$SSH_DIR"
 chmod 700 "$SSH_DIR"
-base64 -d "$SSH_PRIVATE_KEY" > "$SSH_DIR/id_rsa"
+cp "$SSH_PRIVATE_KEY" "$SSH_DIR/id_rsa"
 chmod 600 "$SSH_DIR/id_rsa"
 ssh-add "$SSH_DIR/id_rsa" 2>&1 || { echo "Failed to add SSH key"; exit 1; }
 ssh-add -l || echo "No keys found in ssh-agent"
